@@ -1,0 +1,75 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "projects": "Dự án",
+    "contact": "Liên hệ"
+  },
+  "hero": {
+    "name": "Nguyễn Thế Chinh",
+    "title": "Fullstack Developer",
+    "subtitle": "Xây dựng ứng dụng web hiện đại với hơn 3 năm kinh nghiệm về Java Spring Boot và ReactJS/TypeScript",
+    "cta": "Xem Dự án",
+    "contact": "Liên hệ",
+    "greeting": "Xin chào, tôi là",
+    "stats": {
+      "years": "Năm Kinh nghiệm",
+      "projects": "Dự án",
+      "technologies": "Công nghệ"
+    }
+  },
+  "about": {
+    "title": "Giới thiệu",
+    "description": "Tôi là Fullstack Developer với hơn 3 năm kinh nghiệm chuyên về Java Spring Boot và ReactJS/TypeScript. Đam mê phát triển frontend và xây dựng các ứng dụng hiệu suất cao, thân thiện với người dùng.",
+    "shortTermGoal": "Mục tiêu ngắn hạn: Nâng cao chuyên môn về cả frontend và backend, tối ưu hóa hiệu suất hệ thống, cải thiện kỹ năng thiết kế kiến trúc microservices và DevOps.",
+    "longTermGoal": "Mục tiêu dài hạn: Trở thành Senior Fullstack Engineer, đóng góp vào kiến trúc hệ thống quy mô lớn, làm chủ cả frontend và backend, và hướng dẫn lập trình viên trẻ.",
+    "education": {
+      "title": "Học vấn",
+      "university": "Đại học Bách Khoa Hà Nội (2018 - 2023)",
+      "program": "Chương trình Global ICT",
+      "degree": "Bằng Kỹ sư Công nghệ Thông tin, Loại: Khá, GPA: 2.92"
+    },
+    "certifications": {
+      "title": "Chứng chỉ",
+      "toeic": "TOEIC Listening & Reading - Điểm: 930"
+    }
+  },
+  "skills": {
+    "title": "Kỹ năng",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "tools": "Công cụ & Khác",
+    "languages": "Ngôn ngữ",
+    "frameworks": "Framework",
+    "databases": "Cơ sở dữ liệu",
+    "devops": "DevOps & Công cụ",
+    "messaging": "Messaging",
+    "other": "Khác"
+  },
+  "experience": {
+    "title": "Kinh nghiệm làm việc"
+  },
+  "projects": {
+    "title": "Dự án",
+    "viewDemo": "Xem Demo",
+    "viewGithub": "Xem GitHub",
+    "description": {
+      "sapoGo": "Phát triển và bảo trì tính năng Social Channel hỗ trợ bán hàng trên Facebook, Instagram, Zalo. Sử dụng Java Spring Boot, ReactJS, Redux, Kafka, RabbitMQ, MongoDB, Portainer, và Grafana. Nâng cấp phiên bản Node từ 14 lên 18 và React từ 16 lên 18. Tích hợp Sentry để theo dõi và xử lý lỗi thời gian thực.",
+      "facebookShopping": "Phát triển giao diện cho tính năng Facebook Catalog và Facebook Live Shopping. Sử dụng TypeScript để tích hợp giao diện vào hệ thống Sapo.",
+      "sapoMobile": "Sử dụng React Native để xây dựng giao diện và tích hợp API cho ứng dụng di động.",
+      "hospital": "Xây dựng hệ thống đặt lịch khám và triển khai cơ chế cân bằng tải. Công nghệ: ReactJS, NodeJS, Python, nginx, MongoDB."
+    }
+  },
+  "contact": {
+    "title": "Liên hệ",
+    "getInTouch": "Liên hệ",
+    "downloadCV": "Tải CV",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "location": "Địa chỉ",
+    "facebook": "Facebook"
+  }
+}
+
+
+

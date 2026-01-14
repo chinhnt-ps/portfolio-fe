@@ -1,0 +1,75 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "contact": "Contact"
+  },
+  "hero": {
+    "name": "Nguyen The Chinh",
+    "title": "Fullstack Developer",
+    "subtitle": "Building modern web applications with 3+ years of experience in Java Spring Boot and ReactJS/TypeScript",
+    "cta": "View Projects",
+    "contact": "Get in Touch",
+    "greeting": "Hello, I am",
+    "stats": {
+      "years": "Years Experience",
+      "projects": "Projects",
+      "technologies": "Technologies"
+    }
+  },
+  "about": {
+    "title": "About Me",
+    "description": "I am a Fullstack Developer with over 3 years of experience specializing in Java Spring Boot and ReactJS/TypeScript. Passionate about frontend development and building high-performance, user-friendly applications.",
+    "shortTermGoal": "Short-term goal: Enhance expertise in both frontend and backend technologies, optimize system performance, improve microservices architecture design skills, and DevOps practices.",
+    "longTermGoal": "Long-term goal: Become a Senior Fullstack Engineer, contribute to large-scale system architecture, master both frontend and backend, and mentor junior developers.",
+    "education": {
+      "title": "Education",
+      "university": "Hanoi University of Science and Technology (2018 - 2023)",
+      "program": "Global ICT Program",
+      "degree": "Bachelor of Information Technology, Grade: Good, GPA: 2.92"
+    },
+    "certifications": {
+      "title": "Certifications",
+      "toeic": "TOEIC Listening & Reading - Score: 930"
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "tools": "Tools & Others",
+    "languages": "Languages",
+    "frameworks": "Frameworks",
+    "databases": "Databases",
+    "devops": "DevOps & Tools",
+    "messaging": "Messaging",
+    "other": "Other"
+  },
+  "experience": {
+    "title": "Work Experience"
+  },
+  "projects": {
+    "title": "Projects",
+    "viewDemo": "View Demo",
+    "viewGithub": "View GitHub",
+    "description": {
+      "sapoGo": "Developed and maintained Social Channel feature supporting sales on Facebook, Instagram, and Zalo. Used Java Spring Boot, ReactJS, Redux, Kafka, RabbitMQ, MongoDB, Portainer, and Grafana. Upgraded Node from version 14 to 18 and React from 16 to 18. Integrated Sentry for real-time error tracking and handling.",
+      "facebookShopping": "Developed UI for Facebook Catalog and Facebook Live Shopping features. Used TypeScript to integrate interface into Sapo system.",
+      "sapoMobile": "Used React Native to build interface and integrate APIs for mobile application.",
+      "hospital": "Built appointment booking system and implemented load balancing mechanism. Technologies: ReactJS, NodeJS, Python, nginx, MongoDB."
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "getInTouch": "Get in Touch",
+    "downloadCV": "Download CV",
+    "email": "Email",
+    "phone": "Phone",
+    "location": "Location",
+    "facebook": "Facebook"
+  }
+}
+
+
+
