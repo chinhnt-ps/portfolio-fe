@@ -1,11 +1,10 @@
 import { ReactNode } from 'react';
 
 interface TechIconProps {
-  name: string;
   children: ReactNode;
 }
 
-export const TechIcon = ({ name, children }: TechIconProps) => {
+export const TechIcon = ({ children }: TechIconProps) => {
   return (
     <div style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {children}

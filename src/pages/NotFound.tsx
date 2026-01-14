@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Container } from '@/components/layout/Container';
-import { useTranslation } from 'react-i18next';
 
 const NotFoundWrapper = styled.div`
   display: flex;
@@ -45,8 +44,6 @@ const HomeLink = styled(Link)`
 `;
 
 export const NotFound = () => {
-  const { t } = useTranslation();
-
   return (
     <Container>
       <NotFoundWrapper>

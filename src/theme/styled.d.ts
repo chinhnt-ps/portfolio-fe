@@ -1,5 +1,4 @@
 import 'styled-components';
-import { colors, darkTheme, lightTheme } from './colors';
 import { typography } from './typography';
 import { spacing } from './spacing';
 import { borderRadius } from './borderRadius';

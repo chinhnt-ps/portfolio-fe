@@ -67,7 +67,7 @@ const Name = styled.h1`
   background-clip: text;
 
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-    font-size: ${({ theme }) => theme.typography.fontSize['6xl']};
+    font-size: ${({ theme }) => theme.typography.fontSize['5xl']};
   }
 `;
 

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
 import { Container } from '@/components/layout/Container';
 import { MetaTags } from '@/components/seo/MetaTags';
 import { Projects as ProjectsSection } from '@/components/sections/Projects';
@@ -13,8 +12,6 @@ const PageWrapper = styled.div`
 `;
 
 export const Projects = () => {
-  const { t } = useTranslation();
-
   return (
     <PageWrapper>
       <MetaTags
