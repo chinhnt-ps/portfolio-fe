@@ -1,6 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 
 interface Props {
   children: ReactNode;
@@ -18,34 +17,36 @@ const ErrorContainer = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: ${({ theme }) => theme.spacing[8]};
+  padding: ${({ theme }) => theme?.spacing?.[8] || '32px'};
   text-align: center;
 `;
 
 const ErrorTitle = styled.h1`
-  font-size: ${({ theme }) => theme.typography.fontSize['4xl']};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
-  margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
+  font-size: ${({ theme }) => theme?.typography?.fontSize?.['4xl'] || '2rem'};
+  font-weight: ${({ theme }) => theme?.typography?.fontWeight?.bold || 'bold'};
+  color: ${({ theme }) => theme?.colors?.text?.primary || '#000'};
+  margin: 0 0 ${({ theme }) => theme?.spacing?.[4] || '16px'} 0;
 `;
 
 const ErrorMessage = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  margin: 0 0 ${({ theme }) => theme.spacing[6]} 0;
+  font-size: ${({ theme }) => theme?.typography?.fontSize?.base || '1rem'};
+  color: ${({ theme }) => theme?.colors?.text?.secondary || '#666'};
+  margin: 0 0 ${({ theme }) => theme?.spacing?.[6] || '24px'} 0;
 `;
 
-const ErrorButton = styled(Link)`
+const ErrorButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
-  background: ${({ theme }) => theme.colors.primary};
+  padding: ${({ theme }) => theme?.spacing?.[3] || '12px'} ${({ theme }) => theme?.spacing?.[6] || '24px'};
+  background: ${({ theme }) => theme?.colors?.primary || '#0ea5e9'};
   color: white;
   text-decoration: none;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  border: none;
+  border-radius: ${({ theme }) => theme?.borderRadius?.md || '8px'};
+  font-size: ${({ theme }) => theme?.typography?.fontSize?.base || '1rem'};
+  font-weight: ${({ theme }) => theme?.typography?.fontWeight?.medium || '500'};
+  cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
@@ -80,7 +81,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <ErrorMessage>
             {this.state.error?.message || 'An unexpected error occurred'}
           </ErrorMessage>
-          <ErrorButton to="/" onClick={() => window.location.reload()}>
+          <ErrorButton onClick={() => {
+            window.location.href = '/';
+          }}>
             Go to Home
           </ErrorButton>
         </ErrorContainer>

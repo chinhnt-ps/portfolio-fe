@@ -1,8 +1,9 @@
 import styled from 'styled-components';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ScrollToTop } from '../common/ScrollToTop';
+import { getProjectBySlug } from '@/data/projects';
 
 const LayoutWrapper = styled.div`
   min-height: 100vh;
@@ -19,6 +20,31 @@ const Main = styled.main`
 `;
 
 export const Layout = () => {
+  const location = useLocation();
+  
+  // Check if current route is a sub-app
+  // Path pattern: /projects/:slug where slug matches a sub-app project
+  const isSubAppRoute = location.pathname.startsWith('/projects/');
+  let shouldHideLayout = false;
+  
+  if (isSubAppRoute) {
+    const slug = location.pathname.split('/projects/')[1];
+    const project = getProjectBySlug(slug || '');
+    shouldHideLayout = project?.type === 'sub-app';
+  }
+
+  // Nếu là sub-app route, không render Header và Footer
+  // Không render ScrollToTop trong sub-app vì sub-app có layout riêng
+  if (shouldHideLayout) {
+    return (
+      <LayoutWrapper>
+        <Main>
+          <Outlet />
+        </Main>
+      </LayoutWrapper>
+    );
+  }
+
   return (
     <LayoutWrapper>
       <Header />

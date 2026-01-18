@@ -68,6 +68,184 @@
     "phone": "Số điện thoại",
     "location": "Địa chỉ",
     "facebook": "Facebook"
+  },
+  "wallet": {
+    "app": {
+      "title": "Wallet App",
+      "description": "Đăng nhập để quản lý chi tiêu và theo dõi ngân sách"
+    },
+    "login": {
+      "title": "Wallet App",
+      "description": "Đăng nhập để quản lý chi tiêu và theo dõi ngân sách",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "signIn": "Đăng nhập",
+      "signingIn": "Đang đăng nhập...",
+      "emailPlaceholder": "your@email.com",
+      "passwordPlaceholder": "••••••••"
+    },
+    "header": {
+      "logout": "Đăng xuất",
+      "loggingOut": "Đang đăng xuất..."
+    },
+    "navigation": {
+      "dashboard": "Trang chủ",
+      "transactions": "Giao dịch",
+      "add": "Thêm",
+      "accounts": "Tài khoản",
+      "categories": "Danh mục",
+      "budgets": "Ngân sách",
+      "receivables": "Cho vay",
+      "liabilities": "Nợ",
+      "assets": "Tài sản",
+      "settings": "Cài đặt"
+    },
+    "sidebar": {
+      "main": "Chính",
+      "debts": "Công nợ",
+      "assets": "Tài sản",
+      "settings": "Hệ thống"
+    },
+    "dashboard": {
+      "title": "Trang chủ",
+      "overview": "Tổng quan",
+      "financialOverview": "Tổng quan tài chính",
+      "totalAssets": "Tổng tài sản",
+      "currentCash": "Tiền hiện có",
+      "totalReceivables": "Khoản cho vay",
+      "totalLiabilities": "Khoản nợ",
+      "totalIncome": "Tổng thu",
+      "totalExpense": "Tổng chi",
+      "netSavings": "Tiết kiệm ròng",
+      "incomeExpense": "Thu/Chi",
+      "last30Days": "30 ngày gần nhất",
+      "thisMonth": "Tháng này",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "addTransaction": "Thêm giao dịch mới",
+      "commandPlaceholder": "Nhập lệnh... (ví dụ: \"ăn bún 50k\", \"cho Nam vay 2tr\")",
+      "parseCommand": "Phân tích",
+      "addManualTransaction": "Thêm giao dịch thủ công",
+      "accountBalances": "Số dư tài khoản",
+      "recentTransactions": "Giao dịch gần đây",
+      "noAccounts": "Chưa có tài khoản nào",
+      "addFirstAccount": "Thêm tài khoản đầu tiên",
+      "noTransactions": "Chưa có giao dịch nào",
+      "addFirstTransaction": "Thêm giao dịch đầu tiên",
+      "addNewTransaction": "Thêm giao dịch mới",
+      "noNote": "Không có ghi chú"
+    },
+    "transactions": {
+      "title": "Giao dịch",
+      "add": "Thêm giao dịch",
+      "addFirst": "Thêm giao dịch đầu tiên",
+      "edit": "Sửa giao dịch",
+      "delete": "Xóa giao dịch",
+      "type": "Loại",
+      "all": "Tất cả",
+      "income": "Thu nhập",
+      "expense": "Chi tiêu",
+      "transfer": "Chuyển khoản",
+      "amount": "Số tiền",
+      "currency": "Tiền tệ",
+      "date": "Ngày giao dịch",
+      "note": "Ghi chú",
+      "fromAccount": "Tài khoản nguồn",
+      "toAccount": "Tài khoản đích",
+      "selectFromAccount": "Chọn tài khoản nguồn",
+      "selectToAccount": "Chọn tài khoản đích",
+      "noCategory": "Không có",
+      "notFound": "Không tìm thấy giao dịch",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "search": "Tìm kiếm",
+      "searchPlaceholder": "Tìm kiếm giao dịch...",
+      "filters": "Bộ lọc",
+      "minAmount": "Tối thiểu",
+      "maxAmount": "Tối đa",
+      "sortBy": "Sắp xếp theo",
+      "sortByDate": "Ngày giao dịch",
+      "sortByAmount": "Số tiền",
+      "sortByCreated": "Ngày tạo",
+      "sortOrder": "Thứ tự",
+      "desc": "Giảm dần",
+      "asc": "Tăng dần",
+      "previous": "Trước",
+      "next": "Sau",
+      "items": "giao dịch",
+      "noTransactions": "Không tìm thấy giao dịch nào.",
+      "confirmDelete": "Bạn có chắc muốn xóa giao dịch này?",
+      "page": "Trang",
+      "of": "/"
+    },
+    "accounts": {
+      "title": "Tài khoản",
+      "add": "Thêm tài khoản",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "name": "Tên tài khoản",
+      "type": "Loại",
+      "balance": "Số dư",
+      "currency": "Tiền tệ",
+      "noAccounts": "Chưa có tài khoản nào"
+    },
+    "categories": {
+      "title": "Danh mục",
+      "add": "Thêm danh mục",
+      "addFirst": "Thêm danh mục đầu tiên",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "name": "Tên danh mục",
+      "namePlaceholder": "Ví dụ: Ăn uống, Mua sắm...",
+      "icon": "Icon",
+      "iconHint": "Nhập tên icon từ Lucide (ví dụ: Utensils, Car, ShoppingBag)",
+      "type": "Loại",
+      "system": "Hệ thống",
+      "create": "Tạo danh mục",
+      "cannotDeleteSystem": "Không thể xóa danh mục hệ thống",
+      "confirmDelete": "Bạn có chắc muốn xóa danh mục \"{{name}}\"?",
+      "noCategories": "Chưa có danh mục nào"
+    },
+    "budgets": {
+      "title": "Ngân sách",
+      "monthly": "Ngân sách tháng",
+      "spent": "Đã chi",
+      "remaining": "Còn lại",
+      "noBudgets": "Chưa có ngân sách nào"
+    },
+    "receivables": {
+      "title": "Cho vay",
+      "noReceivables": "Chưa có khoản cho vay nào"
+    },
+    "liabilities": {
+      "title": "Nợ",
+      "noLiabilities": "Chưa có khoản nợ nào"
+    },
+    "assets": {
+      "title": "Tài sản",
+      "noAssets": "Chưa có tài sản nào"
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "userInfo": "Thông tin người dùng",
+      "quickLinks": "Liên kết nhanh"
+    },
+    "common": {
+      "loading": "Đang tải...",
+      "error": "Lỗi",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "delete": "Xóa",
+      "edit": "Chỉnh sửa",
+      "add": "Thêm",
+      "close": "Đóng",
+      "clear": "Xóa",
+      "confirm": "Xác nhận",
+      "yes": "Có",
+      "no": "Không",
+      "saving": "Đang lưu...",
+      "deleting": "Đang xóa..."
+    }
   }
 }
 

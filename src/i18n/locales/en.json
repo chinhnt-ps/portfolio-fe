@@ -68,6 +68,184 @@
     "phone": "Phone",
     "location": "Location",
     "facebook": "Facebook"
+  },
+  "wallet": {
+    "app": {
+      "title": "Wallet App",
+      "description": "Sign in to manage your expenses and track your budget"
+    },
+    "login": {
+      "title": "Wallet App",
+      "description": "Sign in to manage your expenses and track your budget",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "emailPlaceholder": "your@email.com",
+      "passwordPlaceholder": "••••••••"
+    },
+    "header": {
+      "logout": "Logout",
+      "loggingOut": "Logging out..."
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "transactions": "Transactions",
+      "add": "Add",
+      "accounts": "Accounts",
+      "categories": "Categories",
+      "budgets": "Budgets",
+      "receivables": "Receivables",
+      "liabilities": "Liabilities",
+      "assets": "Assets",
+      "settings": "Settings"
+    },
+    "sidebar": {
+      "main": "Main",
+      "debts": "Debts",
+      "assets": "Assets",
+      "settings": "System"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "overview": "Overview",
+      "financialOverview": "Financial Overview",
+      "totalAssets": "Total Assets",
+      "currentCash": "Current Cash",
+      "totalReceivables": "Total Receivables",
+      "totalLiabilities": "Total Liabilities",
+      "totalIncome": "Total Income",
+      "totalExpense": "Total Expense",
+      "netSavings": "Net Savings",
+      "incomeExpense": "Income/Expense",
+      "last30Days": "Last 30 Days",
+      "thisMonth": "This Month",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "addTransaction": "Add Transaction",
+      "commandPlaceholder": "Enter command... (e.g., \"lunch 50k\", \"lend Nam 2m\")",
+      "parseCommand": "Parse",
+      "addManualTransaction": "Add Manual Transaction",
+      "accountBalances": "Account Balances",
+      "recentTransactions": "Recent Transactions",
+      "noAccounts": "No accounts yet",
+      "addFirstAccount": "Add your first account",
+      "noTransactions": "No transactions yet",
+      "addFirstTransaction": "Add your first transaction",
+      "addNewTransaction": "Add New Transaction",
+      "noNote": "No note"
+    },
+    "transactions": {
+      "title": "Transactions",
+      "add": "Add Transaction",
+      "addFirst": "Add First Transaction",
+      "edit": "Edit Transaction",
+      "delete": "Delete Transaction",
+      "type": "Type",
+      "all": "All",
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer",
+      "amount": "Amount",
+      "currency": "Currency",
+      "date": "Transaction Date",
+      "note": "Note",
+      "fromAccount": "From Account",
+      "toAccount": "To Account",
+      "selectFromAccount": "Select from account",
+      "selectToAccount": "Select to account",
+      "noCategory": "None",
+      "notFound": "Transaction not found",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "search": "Search",
+      "searchPlaceholder": "Search transactions...",
+      "filters": "Filters",
+      "minAmount": "Min Amount",
+      "maxAmount": "Max Amount",
+      "sortBy": "Sort By",
+      "sortByDate": "Transaction Date",
+      "sortByAmount": "Amount",
+      "sortByCreated": "Created Date",
+      "sortOrder": "Order",
+      "desc": "Descending",
+      "asc": "Ascending",
+      "previous": "Previous",
+      "next": "Next",
+      "items": "transactions",
+      "noTransactions": "No transactions found.",
+      "confirmDelete": "Are you sure you want to delete this transaction?",
+      "page": "Page",
+      "of": "of"
+    },
+    "accounts": {
+      "title": "Accounts",
+      "add": "Add Account",
+      "edit": "Edit",
+      "delete": "Delete",
+      "name": "Account Name",
+      "type": "Type",
+      "balance": "Balance",
+      "currency": "Currency",
+      "noAccounts": "No accounts yet"
+    },
+    "categories": {
+      "title": "Categories",
+      "add": "Add Category",
+      "addFirst": "Add First Category",
+      "edit": "Edit",
+      "delete": "Delete",
+      "name": "Category Name",
+      "namePlaceholder": "e.g., Food, Shopping...",
+      "icon": "Icon",
+      "iconHint": "Enter Lucide icon name (e.g., Utensils, Car, ShoppingBag)",
+      "type": "Type",
+      "system": "System",
+      "create": "Create Category",
+      "cannotDeleteSystem": "Cannot delete system category",
+      "confirmDelete": "Are you sure you want to delete category \"{{name}}\"?",
+      "noCategories": "No categories yet"
+    },
+    "budgets": {
+      "title": "Budgets",
+      "monthly": "Monthly Budget",
+      "spent": "Spent",
+      "remaining": "Remaining",
+      "noBudgets": "No budgets yet"
+    },
+    "receivables": {
+      "title": "Receivables",
+      "noReceivables": "No receivables yet"
+    },
+    "liabilities": {
+      "title": "Liabilities",
+      "noLiabilities": "No liabilities yet"
+    },
+    "assets": {
+      "title": "Assets",
+      "noAssets": "No assets yet"
+    },
+    "settings": {
+      "title": "Settings",
+      "userInfo": "User Information",
+      "quickLinks": "Quick Links"
+    },
+    "common": {
+      "loading": "Loading...",
+      "error": "Error",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "close": "Close",
+      "clear": "Clear",
+      "confirm": "Confirm",
+      "yes": "Yes",
+      "no": "No",
+      "saving": "Saving...",
+      "deleting": "Deleting..."
+    }
   }
 }
 

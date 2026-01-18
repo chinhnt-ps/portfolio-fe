@@ -5,7 +5,7 @@ import { spacing } from './spacing';
 import { borderRadius } from './borderRadius';
 import { shadows } from './shadows';
 import { breakpoints } from './breakpoints';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 const lightThemeConfig = {
   colors: {
@@ -52,6 +52,16 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider = ({ children, theme }: ThemeProviderProps) => {
+  // Sync dark mode class với shadcn/ui
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
+
   return (
     <StyledThemeProvider theme={themes[theme]}>
       {children}

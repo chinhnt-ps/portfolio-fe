@@ -3,14 +3,14 @@ import styled from 'styled-components';
 
 const ScrollButton = styled.button<{ $isVisible: boolean }>`
   position: fixed;
-  bottom: ${({ theme }) => theme.spacing[6]};
-  right: ${({ theme }) => theme.spacing[6]};
+  bottom: ${({ theme }) => theme?.spacing?.[6] || '24px'};
+  right: ${({ theme }) => theme?.spacing?.[6] || '24px'};
   width: 48px;
   height: 48px;
-  background: ${({ theme }) => theme.colors.primary};
+  background: ${({ theme }) => theme?.colors?.primary || '#0ea5e9'};
   color: white;
   border: none;
-  border-radius: ${({ theme }) => theme.borderRadius.full};
+  border-radius: ${({ theme }) => theme?.borderRadius?.full || '50%'};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -19,16 +19,16 @@ const ScrollButton = styled.button<{ $isVisible: boolean }>`
   visibility: ${({ $isVisible }) => ($isVisible ? 'visible' : 'hidden')};
   transition: all 0.3s ease;
   z-index: 1000;
-  box-shadow: ${({ theme }) => theme.shadows.lg};
+  box-shadow: ${({ theme }) => theme?.shadows?.lg || '0 4px 6px rgba(0, 0, 0, 0.1)'};
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
+    box-shadow: ${({ theme }) => theme?.shadows?.lg || '0 4px 6px rgba(0, 0, 0, 0.1)'};
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.primary}40;
+    box-shadow: 0 0 0 2px ${({ theme }) => (theme?.colors?.primary || '#0ea5e9')}40;
   }
 `;
 

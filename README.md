@@ -52,9 +52,18 @@ portfolio-fe/
 
 ## Environment Variables
 
-Create `.env` file in this directory:
+Xem file [ENV_SETUP.md](./ENV_SETUP.md) để biết chi tiết về cách thiết lập environment variables.
+
+### Quick Start
+
+Tạo file `.env.local` trong thư mục `portfolio-fe/`:
 
 ```env
-REACT_APP_API_URL=your_api_url
+# Production/Staging API URL
+VITE_API_BASE_URL=https://portfolio-be-production-0fa6.up.railway.app
+
+# Hoặc dùng localhost cho debug
+VITE_DEBUG_API_URL=http://localhost:8080
 ```
 
+**Lưu ý**: Tất cả env variables phải bắt đầu với `VITE_` để Vite expose chúng.
