@@ -15,7 +15,7 @@
 // Change this to switch between environments
 // 'dev' | 'live' | 'localhost'
 type ApiMode = 'dev' | 'live' | 'localhost';
-const MODE: ApiMode = 'localhost'; // Development mode - using local backend
+const MODE: ApiMode = 'live'; // Development mode - using local backend
 
 // ============================================
 // Environment Configuration Functions
