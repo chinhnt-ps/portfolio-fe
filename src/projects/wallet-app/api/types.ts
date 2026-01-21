@@ -21,26 +21,45 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  fullName: string;
+  fullName?: string;
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number; // seconds
+  // Một số API (register) có thể trả token = null
+  accessToken: string | null;
+  refreshToken: string | null;
+  expiresIn: number | null; // seconds
+
+  // Backend thường trả kèm object user
   user: UserInfo;
+
+  // Các field có thể xuất hiện tùy endpoint
+  userId?: string;
+  email?: string;
+  fullName?: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'LOCKED';
 }
 
 export interface UserInfo {
   id: string;
+  userId?: string;
   email: string;
   fullName: string;
   status: 'ACTIVE' | 'INACTIVE' | 'LOCKED';
   role: 'USER' | 'ADMIN';
+  emailVerified?: boolean;
+  emailVerifiedAt?: string | null;
+  createdAt?: string;
+  lastLoginAt?: string | null;
 }
 
 export interface RefreshTokenRequest {
   refreshToken: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  verificationCode: string;
 }
 
 /**

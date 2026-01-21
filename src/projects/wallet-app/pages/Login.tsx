@@ -79,6 +79,18 @@ export const Login = () => {
           <button className={`login-button ${isLoading ? 'login-button--loading' : ''}`} type="submit" disabled={isLoading}>
             {isLoading ? t('wallet.login.signingIn') : t('wallet.login.signIn')}
           </button>
+
+          <div className="register-link">
+            <span>{t('wallet.login.dontHaveAccount', 'Chưa có tài khoản?')}</span>
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => navigate('register')}
+              disabled={isLoading}
+            >
+              {t('wallet.login.signUp', 'Đăng ký')}
+            </button>
+          </div>
         </form>
       </div>
     </LoginWrapper>
@@ -192,6 +204,35 @@ const LoginWrapper = styled.div`
         &--loading {
           cursor: not-allowed;
           opacity: 0.7;
+        }
+      }
+
+      .register-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: ${({ theme }) => theme.spacing[2]};
+        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        color: ${({ theme }) => theme.colors.text.secondary};
+
+        .link-button {
+          background: none;
+          border: none;
+          color: ${({ theme }) => theme.colors.primary};
+          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+          cursor: pointer;
+          text-decoration: underline;
+          padding: 0;
+
+          &:hover:not(:disabled) {
+            opacity: 0.8;
+          }
+
+          &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+          }
         }
       }
     }

@@ -1,6 +1,8 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { WalletAppLayout } from './components/WalletAppLayout';
 import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { VerifyEmail } from './pages/VerifyEmail';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { AddTransaction } from './pages/AddTransaction';
@@ -18,6 +20,8 @@ import { Toaster } from '@/components/ui/toaster';
 // Wallet App Route Types
 type WalletAppRoute = 
   | 'login' 
+  | 'register'
+  | 'verify-email'
   | 'dashboard' 
   | 'transactions' 
   | 'transactions/add'
@@ -64,7 +68,7 @@ const WalletAppRouter = () => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.slice(1); // Remove #
       const validRoutes: WalletAppRoute[] = [
-        'login', 'dashboard', 'transactions', 'transactions/add', 'transactions/edit',
+        'login', 'register', 'verify-email', 'dashboard', 'transactions', 'transactions/add', 'transactions/edit',
         'accounts', 'categories', 'budgets', 'receivables', 'liabilities', 'assets', 'settings'
       ];
       if (validRoutes.includes(hash as WalletAppRoute)) {
@@ -88,7 +92,7 @@ const WalletAppRouter = () => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
       const validRoutes: WalletAppRoute[] = [
-        'login', 'dashboard', 'transactions', 'transactions/add', 'transactions/edit',
+        'login', 'register', 'verify-email', 'dashboard', 'transactions', 'transactions/add', 'transactions/edit',
         'accounts', 'categories', 'budgets', 'receivables', 'liabilities', 'assets', 'settings'
       ];
       if (validRoutes.includes(hash as WalletAppRoute)) {
@@ -106,9 +110,12 @@ const WalletAppRouter = () => {
 
   // Redirect logic
   useEffect(() => {
-    if (!isAuthenticated && currentRoute !== 'login') {
+    // Các route không cần authentication
+    const publicRoutes: WalletAppRoute[] = ['login', 'register', 'verify-email'];
+    
+    if (!isAuthenticated && !publicRoutes.includes(currentRoute)) {
       setCurrentRoute('login');
-    } else if (isAuthenticated && currentRoute === 'login') {
+    } else if (isAuthenticated && publicRoutes.includes(currentRoute)) {
       setCurrentRoute('dashboard');
     }
   }, [isAuthenticated, currentRoute]);
@@ -117,6 +124,10 @@ const WalletAppRouter = () => {
     switch (currentRoute) {
       case 'login':
         return <Login />;
+      case 'register':
+        return <Register />;
+      case 'verify-email':
+        return <VerifyEmail />;
       case 'dashboard':
         return <Dashboard />;
       case 'transactions':
@@ -183,9 +194,13 @@ const WalletAppRouter = () => {
     );
   }
 
+  // Các route không cần layout (auth pages)
+  const publicRoutes: WalletAppRoute[] = ['login', 'register', 'verify-email'];
+  const isPublicRoute = publicRoutes.includes(currentRoute);
+
   return (
     <WalletAppRouterContext.Provider value={{ currentRoute, navigate }}>
-      {currentRoute === 'login' ? (
+      {isPublicRoute ? (
         renderPage()
       ) : (
         <WalletAppLayout>

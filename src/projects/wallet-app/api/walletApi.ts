@@ -3,6 +3,7 @@ import type {
   ApiResponse,
   LoginRequest,
   RegisterRequest,
+  VerifyEmailRequest,
   AuthResponse,
   RefreshTokenRequest,
   Account,
@@ -189,8 +190,12 @@ export const authApi = {
     
     if (response.data.success && response.data.data) {
       const authData = response.data.data;
-      tokenStorage.setAccessToken(authData.accessToken);
-      tokenStorage.setRefreshToken(authData.refreshToken);
+      if (authData.accessToken) {
+        tokenStorage.setAccessToken(authData.accessToken);
+      }
+      if (authData.refreshToken) {
+        tokenStorage.setRefreshToken(authData.refreshToken);
+      }
       return authData;
     }
     
@@ -214,6 +219,30 @@ export const authApi = {
   },
 
   /**
+   * Verify email với mã xác nhận
+   */
+  verifyEmail: async (data: VerifyEmailRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post<ApiResponse<AuthResponse>>(
+      '/auth/verify-email',
+      data
+    );
+    
+    if (response.data.success && response.data.data) {
+      const authData = response.data.data;
+      // Nếu có token trong response, lưu vào storage
+      if (authData.accessToken) {
+        tokenStorage.setAccessToken(authData.accessToken);
+      }
+      if (authData.refreshToken) {
+        tokenStorage.setRefreshToken(authData.refreshToken);
+      }
+      return authData;
+    }
+    
+    throw new Error(response.data.message || 'Xác nhận email thất bại');
+  },
+
+  /**
    * Refresh access token
    */
   refreshToken: async (refreshToken: string): Promise<AuthResponse> => {
@@ -224,8 +253,12 @@ export const authApi = {
     
     if (response.data.success && response.data.data) {
       const authData = response.data.data;
-      tokenStorage.setAccessToken(authData.accessToken);
-      tokenStorage.setRefreshToken(authData.refreshToken);
+      if (authData.accessToken) {
+        tokenStorage.setAccessToken(authData.accessToken);
+      }
+      if (authData.refreshToken) {
+        tokenStorage.setRefreshToken(authData.refreshToken);
+      }
       return authData;
     }
     
