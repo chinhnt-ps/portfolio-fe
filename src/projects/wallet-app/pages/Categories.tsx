@@ -44,13 +44,16 @@ export const Categories = () => {
 
   // Load categories from Redux
   useEffect(() => {
+    // Tránh gọi API nếu đang loading hoặc đã có data mới
+    if (isLoading) return;
+    
     const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
     
     // Chỉ fetch nếu chưa có data hoặc data đã cũ (hơn 5 phút)
     if (!categoriesLastFetched || categoriesLastFetched < fiveMinutesAgo) {
       dispatch(fetchCategories());
     }
-  }, [dispatch, categoriesLastFetched]);
+  }, [dispatch, categoriesLastFetched, isLoading]);
 
   // Combine Redux error with local error
   useEffect(() => {

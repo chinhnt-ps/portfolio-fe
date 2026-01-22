@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useWalletAppRouter } from '../App';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
-import type { DashboardReport, Transaction, NLPResponse, ConfirmDraftData, Account, Category, TransactionDraft, ReceivableDraft, LiabilityDraft, SettlementDraft } from '../api/types';
+import type { DashboardReport, Transaction, NLPResponse, ConfirmDraftData, TransactionDraft, ReceivableDraft, LiabilityDraft, SettlementDraft } from '../api/types';
 import { Icon } from '../components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { NLPInput } from '../components/NLPInput';
 import { ConfirmDraftDialog } from '../components/ConfirmDraftDialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletAccounts } from '@/store/slices/accountsSlice';
+import { fetchCategories } from '@/store/slices/categoriesSlice';
 
 /**
  * Financial Overview Metrics
@@ -38,6 +41,16 @@ export const Dashboard = () => {
   const { t } = useTranslation();
   const { navigate } = useWalletAppRouter();
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
+  
+  // Redux state for accounts and categories
+  const accounts = useAppSelector((state) => state.walletAccounts.items);
+  const categories = useAppSelector((state) => state.categories.items);
+  const accountsLastFetched = useAppSelector((state) => state.walletAccounts.lastFetched);
+  const categoriesLastFetched = useAppSelector((state) => state.categories.lastFetched);
+  const accountsLoading = useAppSelector((state) => state.walletAccounts.isLoading);
+  const categoriesLoading = useAppSelector((state) => state.categories.isLoading);
+  
   const [report, setReport] = useState<DashboardReport | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [financialOverview, setFinancialOverview] = useState<FinancialOverview | null>(null);
@@ -50,8 +63,6 @@ export const Dashboard = () => {
   const [isParsing, setIsParsing] = useState(false);
   const [nlpResponse, setNlpResponse] = useState<NLPResponse | null>(null);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   
   // Date filter state
   const [dateFilter, setDateFilter] = useState<{
@@ -64,57 +75,34 @@ export const Dashboard = () => {
   const scrollPositionRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Cache for accounts and categories (only reload when needed)
-  const accountsCacheRef = useRef<Account[]>([]);
-  const categoriesCacheRef = useRef<Category[]>([]);
-  const cacheTimestampRef = useRef<number>(0);
-  const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
-
-  // Load accounts and categories for NLP (with caching)
+  // Load accounts and categories from Redux (only if not fetched recently)
   useEffect(() => {
-    const loadData = async () => {
-      const now = Date.now();
-      // Use cache if it's still valid
-      if (accountsCacheRef.current.length > 0 && 
-          categoriesCacheRef.current.length > 0 &&
-          (now - cacheTimestampRef.current) < CACHE_DURATION_MS) {
-        setAccounts(accountsCacheRef.current);
-        setCategories(categoriesCacheRef.current);
-        return;
-      }
-
-      try {
-        const [accountsData, categoriesData] = await Promise.all([
-          walletApi.accounts.getAll(),
-          walletApi.categories.getAll(),
-        ]);
-        accountsCacheRef.current = accountsData;
-        categoriesCacheRef.current = categoriesData;
-        cacheTimestampRef.current = now;
-        setAccounts(accountsData);
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error('Error loading accounts/categories:', err);
-      }
-    };
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // CACHE_DURATION_MS is constant, no need to include
+    // Tránh gọi API nếu đang loading
+    if (accountsLoading || categoriesLoading) return;
+    
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    
+    if (!accountsLastFetched || accountsLastFetched < fiveMinutesAgo) {
+      dispatch(fetchWalletAccounts());
+    }
+    if (!categoriesLastFetched || categoriesLastFetched < fiveMinutesAgo) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, accountsLastFetched, categoriesLastFetched, accountsLoading, categoriesLoading]);
 
   // Load financial overview data (Section 1)
   useEffect(() => {
     const loadFinancialOverview = async () => {
       setIsLoadingFinancial(true);
       try {
-        // Load data từ 3 APIs parallel
-        const [accountsData, receivablesData, liabilitiesData] = await Promise.all([
-          walletApi.accounts.getAll(),
+        // Sử dụng accounts từ Redux, chỉ load receivables và liabilities
+        const [receivablesData, liabilitiesData] = await Promise.all([
           walletApi.receivables.getAll(0, 1000), // Load tất cả để tính tổng
           walletApi.liabilities.getAll(0, 1000), // Load tất cả để tính tổng
         ]);
 
-        // Tính toán metrics
-        const totalAccounts = accountsData.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
+        // Tính toán metrics - sử dụng accounts từ Redux
+        const totalAccounts = accounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
         const totalReceivables = receivablesData.content.reduce(
           (sum, rec) => sum + (rec.remainingAmount || 0),
           0
@@ -139,8 +127,11 @@ export const Dashboard = () => {
       }
     };
 
-    loadFinancialOverview();
-  }, []);
+    // Chỉ load khi có accounts từ Redux
+    if (accounts.length > 0) {
+      loadFinancialOverview();
+    }
+  }, [accounts]);
 
   // Memoize date calculation để tránh tính toán lại không cần thiết
   const dateRange = useMemo(() => {
@@ -458,8 +449,14 @@ export const Dashboard = () => {
       };
       loadTransactions();
       
-      // Invalidate cache để reload accounts/categories nếu có thay đổi
-      cacheTimestampRef.current = 0;
+      // Reload accounts/categories nếu có thay đổi (ví dụ: tạo account mới từ transaction)
+      // Chỉ reload nếu không đang loading để tránh duplicate calls
+      if (!accountsLoading) {
+        dispatch(fetchWalletAccounts());
+      }
+      if (!categoriesLoading) {
+        dispatch(fetchCategories());
+      }
       
       setShowDraftDialog(false);
       setNlpResponse(null);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
@@ -40,9 +40,18 @@ export const Assets = () => {
     note: '',
   });
 
-  const loadAssets = useCallback(async (page: number = 0) => {
+  // Track xem đã gọi API chưa để tránh gọi 2 lần do React Strict Mode
+  const hasLoadedRef = useRef<Record<number, boolean>>({});
+  const isLoadingRef = useRef(false);
+
+  const loadAssets = useCallback(async (page: number = 0, forceReload: boolean = false) => {
+    // Tránh gọi API 2 lần do React Strict Mode hoặc nếu đang loading
+    if ((hasLoadedRef.current[page] && !forceReload) || isLoadingRef.current) return;
+    
+    isLoadingRef.current = true;
     setIsLoading(true);
     setError(null);
+    hasLoadedRef.current[page] = true;
 
     try {
       const [assetsResult, totalValueResult] = await Promise.all([
@@ -54,7 +63,10 @@ export const Assets = () => {
       setTotalValue(totalValueResult ?? 0);
     } catch (err) {
       setError(handleApiError(err));
+      // Reset flag nếu có lỗi để có thể retry
+      hasLoadedRef.current[page] = false;
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
     }
   }, []);
@@ -128,7 +140,7 @@ export const Assets = () => {
         };
         await walletApi.assets.create(data);
       }
-      await loadAssets(currentPage);
+      await loadAssets(currentPage, true); // Force reload sau khi create/update
       handleCloseModal();
     } catch (err) {
       setError(handleApiError(err));
@@ -144,7 +156,7 @@ export const Assets = () => {
 
     try {
       await walletApi.assets.delete(asset.id);
-      await loadAssets(currentPage);
+      await loadAssets(currentPage, true); // Force reload sau khi delete
     } catch (err) {
       setError(handleApiError(err));
     }

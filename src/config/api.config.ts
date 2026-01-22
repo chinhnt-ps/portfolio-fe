@@ -15,7 +15,8 @@
 // Change this to switch between environments
 // 'dev' | 'live' | 'localhost'
 type ApiMode = 'dev' | 'live' | 'localhost';
-const MODE: ApiMode = 'live'; // Development mode - using local backend
+// Ưu tiên env cho test/e2e: VITE_API_MODE=localhost|dev|live
+const MODE: ApiMode = (import.meta.env?.VITE_API_MODE as ApiMode) || 'live';
 
 // ============================================
 // Environment Configuration Functions

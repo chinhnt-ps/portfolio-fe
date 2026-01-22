@@ -176,6 +176,27 @@ export const handleApiError = (error: unknown): string => {
 };
 
 /**
+ * Transform backend pagination response to frontend format
+ * Backend trả về: { content, pageable: { pageNumber }, number, first, last, totalPages, totalElements, size }
+ * Frontend cần: { content, page, hasNext, hasPrevious, totalPages, totalElements, size }
+ */
+const transformPaginatedResponse = <T>(backendData: any): PaginatedResponse<T> => {
+  const pageNumber = backendData.pageable?.pageNumber ?? backendData.number ?? 0;
+  const isFirst = backendData.first ?? false;
+  const isLast = backendData.last ?? false;
+  
+  return {
+    content: backendData.content || [],
+    totalElements: backendData.totalElements || 0,
+    totalPages: backendData.totalPages || 0,
+    page: pageNumber,
+    size: backendData.size || backendData.pageable?.pageSize || 20,
+    hasNext: !isLast,
+    hasPrevious: !isFirst,
+  };
+};
+
+/**
  * Auth API
  */
 export const authApi = {
@@ -447,12 +468,12 @@ export const transactionsApi = {
       if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
     }
     
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Transaction>>>(
+    const response = await apiClient.get<ApiResponse<any>>(
       `/wallet/transactions?${params.toString()}`
     );
     
     if (response.data.success && response.data.data) {
-      return response.data.data;
+      return transformPaginatedResponse<Transaction>(response.data.data);
     }
     
     throw new Error(response.data.message || 'Lấy danh sách giao dịch thất bại');
@@ -623,6 +644,34 @@ export const settlementsApi = {
     
     throw new Error(response.data.message || 'Tạo thanh toán thất bại');
   },
+  /**
+   * Get settlements by receivableId
+   */
+  getByReceivableId: async (receivableId: string): Promise<Settlement[]> => {
+    const response = await apiClient.get<ApiResponse<Settlement[]>>(
+      `/wallet/settlements/receivable/${receivableId}`,
+    );
+
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+
+    throw new Error(response.data.message || 'Lấy lịch sử thanh toán cho khoản cho vay thất bại');
+  },
+  /**
+   * Get settlements by liabilityId
+   */
+  getByLiabilityId: async (liabilityId: string): Promise<Settlement[]> => {
+    const response = await apiClient.get<ApiResponse<Settlement[]>>(
+      `/wallet/settlements/liability/${liabilityId}`,
+    );
+
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+
+    throw new Error(response.data.message || 'Lấy lịch sử trả nợ thất bại');
+  },
 };
 
 /**
@@ -662,12 +711,12 @@ export const receivablesApi = {
    * Get all receivables (paginated)
    */
   getAll: async (page: number = 0, size: number = 20): Promise<PaginatedResponse<Receivable>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Receivable>>>(
+    const response = await apiClient.get<ApiResponse<any>>(
       `/wallet/receivables?page=${page}&size=${size}`
     );
     
     if (response.data.success && response.data.data) {
-      return response.data.data;
+      return transformPaginatedResponse<Receivable>(response.data.data);
     }
     
     throw new Error(response.data.message || 'Lấy danh sách khoản cho vay thất bại');
@@ -738,12 +787,12 @@ export const liabilitiesApi = {
    * Get all liabilities (paginated)
    */
   getAll: async (page: number = 0, size: number = 20): Promise<PaginatedResponse<Liability>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Liability>>>(
+    const response = await apiClient.get<ApiResponse<any>>(
       `/wallet/liabilities?page=${page}&size=${size}`
     );
     
     if (response.data.success && response.data.data) {
-      return response.data.data;
+      return transformPaginatedResponse<Liability>(response.data.data);
     }
     
     throw new Error(response.data.message || 'Lấy danh sách khoản nợ thất bại');
@@ -814,12 +863,12 @@ export const assetsApi = {
    * Get all assets (paginated)
    */
   getAll: async (page: number = 0, size: number = 20): Promise<PaginatedResponse<Asset>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Asset>>>(
+    const response = await apiClient.get<ApiResponse<any>>(
       `/wallet/assets?page=${page}&size=${size}`
     );
     
     if (response.data.success && response.data.data) {
-      return response.data.data;
+      return transformPaginatedResponse<Asset>(response.data.data);
     }
     
     throw new Error(response.data.message || 'Lấy danh sách tài sản thất bại');

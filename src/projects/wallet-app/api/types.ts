@@ -115,8 +115,17 @@ export interface CreateCategoryRequest {
 
 /**
  * Transaction Types
+ * 
+ * Thêm type đặc biệt cho thanh toán công nợ:
+ * - RECEIVABLE_SETTLEMENT: nhận tiền cho khoản cho vay (Receivable)
+ * - LIABILITY_SETTLEMENT: trả tiền cho khoản nợ (Liability)
  */
-export type TransactionType = 'EXPENSE' | 'INCOME' | 'TRANSFER';
+export type TransactionType =
+  | 'EXPENSE'
+  | 'INCOME'
+  | 'TRANSFER'
+  | 'RECEIVABLE_SETTLEMENT'
+  | 'LIABILITY_SETTLEMENT';
 
 export interface Transaction {
   id: string;
@@ -130,6 +139,9 @@ export interface Transaction {
   account?: Account;
   fromAccountId?: string; // For TRANSFER
   toAccountId?: string; // For TRANSFER
+  receivableId?: string; // For RECEIVABLE_SETTLEMENT
+  liabilityId?: string; // For LIABILITY_SETTLEMENT
+  settlementId?: string; // Settlement được tạo từ transaction này (nếu có)
   note?: string;
   attachments?: string[];
   createdAt: string;
@@ -142,9 +154,11 @@ export interface CreateTransactionRequest {
   currency: string;
   occurredAt?: string; // ISO date string, default = now
   categoryId?: string; // nullable for TRANSFER
-  accountId: string;
+  accountId?: string; // Required for EXPENSE/INCOME, optional for settlements
   fromAccountId?: string; // Required for TRANSFER
   toAccountId?: string; // Required for TRANSFER
+  receivableId?: string; // Required for RECEIVABLE_SETTLEMENT
+  liabilityId?: string; // Required for LIABILITY_SETTLEMENT
   note?: string;
   attachments?: string[];
 }
@@ -158,6 +172,8 @@ export interface UpdateTransactionRequest {
   accountId?: string;
   fromAccountId?: string;
   toAccountId?: string;
+  receivableId?: string;
+  liabilityId?: string;
   note?: string;
   attachments?: string[];
 }
@@ -258,6 +274,7 @@ export interface Receivable {
   currency: string;
   occurredAt: string; // ISO date string
   dueAt?: string; // ISO date string
+  accountId?: string; // Tài khoản nhận tiền (optional)
   status: ReceivableStatus;
   paidAmount: number;
   remainingAmount: number;
@@ -273,6 +290,7 @@ export interface CreateReceivableRequest {
   currency?: string;
   occurredAt?: string; // ISO date string
   dueAt?: string; // ISO date string
+  accountId?: string; // Tài khoản nhận tiền (optional)
   note?: string;
 }
 
@@ -282,8 +300,7 @@ export interface UpdateReceivableRequest {
   currency?: string;
   occurredAt?: string;
   dueAt?: string;
-  status?: ReceivableStatus;
-  paidAmount?: number;
+  accountId?: string; // Tài khoản nhận tiền (optional)
   note?: string;
 }
 
@@ -299,6 +316,7 @@ export interface Liability {
   currency: string;
   occurredAt: string; // ISO date string
   dueAt?: string; // ISO date string
+  accountId?: string; // Tài khoản trả tiền (optional)
   status: LiabilityStatus;
   paidAmount: number;
   remainingAmount: number;
@@ -314,6 +332,7 @@ export interface CreateLiabilityRequest {
   currency?: string;
   occurredAt?: string; // ISO date string
   dueAt?: string; // ISO date string
+  accountId?: string; // Tài khoản trả tiền (optional)
   note?: string;
 }
 
@@ -323,8 +342,8 @@ export interface UpdateLiabilityRequest {
   currency?: string;
   occurredAt?: string;
   dueAt?: string;
-  status?: LiabilityStatus;
-  paidAmount?: number;
+  accountId?: string; // Tài khoản trả tiền (optional)
+  note?: string;
   note?: string;
 }
 
@@ -448,6 +467,8 @@ export interface Settlement {
   type: SettlementType;
   receivableId?: string;
   liabilityId?: string;
+  transactionId?: string;
+  accountId?: string; // Tài khoản thanh toán (optional)
   amount: number;
   currency: string;
   occurredAt: string; // ISO date string
@@ -460,6 +481,7 @@ export interface CreateSettlementRequest {
   type: SettlementType;
   receivableId?: string;
   liabilityId?: string;
+  accountId?: string; // Tài khoản thanh toán (optional)
   amount: number;
   currency?: string;
   occurredAt?: string; // ISO date string

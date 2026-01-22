@@ -2,8 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
-import type { Liability, CreateLiabilityRequest, UpdateLiabilityRequest, PaginatedResponse } from '../api/types';
+import type {
+  Liability,
+  CreateLiabilityRequest,
+  UpdateLiabilityRequest,
+  PaginatedResponse,
+  Settlement,
+} from '../api/types';
 import { Icon } from '../components/icons';
+import { AmountInput } from '../components/AmountInput';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletAccounts } from '@/store/slices/accountsSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +30,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
  * Quản lý các khoản nợ (CRUD)
  */
 export const Liabilities = () => {
+  const dispatch = useAppDispatch();
+  
+  // Redux state for accounts
+  const accounts = useAppSelector((state) => state.walletAccounts.items);
+  const accountsLastFetched = useAppSelector((state) => state.walletAccounts.lastFetched);
+  const accountsLoading = useAppSelector((state) => state.walletAccounts.isLoading);
+  
   const [liabilities, setLiabilities] = useState<Liability[]>([]);
   const [pagination, setPagination] = useState<PaginatedResponse<Liability> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +45,9 @@ export const Liabilities = () => {
   const [editingLiability, setEditingLiability] = useState<Liability | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
+  const [isLoadingSettlements, setIsLoadingSettlements] = useState(false);
+  const [isSavingSettlement, setIsSavingSettlement] = useState(false);
 
   const [formData, setFormData] = useState<CreateLiabilityRequest>({
     counterpartyName: '',
@@ -36,6 +55,19 @@ export const Liabilities = () => {
     currency: 'VND',
     occurredAt: new Date().toISOString().split('T')[0],
     dueAt: '',
+    accountId: '',
+    note: '',
+  });
+
+  const [settlementForm, setSettlementForm] = useState<{
+    amount: number;
+    accountId: string;
+    occurredAt: string;
+    note: string;
+  }>({
+    amount: 0,
+    accountId: '', // Optional: empty string = không có tài khoản
+    occurredAt: new Date().toISOString().split('T')[0],
     note: '',
   });
 
@@ -54,6 +86,43 @@ export const Liabilities = () => {
     }
   }, []);
 
+  // Load accounts from Redux (only if not fetched recently)
+  useEffect(() => {
+    // Tránh gọi API nếu đang loading
+    if (accountsLoading) return;
+    
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    if (!accountsLastFetched || accountsLastFetched < fiveMinutesAgo) {
+      dispatch(fetchWalletAccounts());
+    }
+  }, [dispatch, accountsLastFetched, accountsLoading]);
+
+  // Set default settlement account when accounts are loaded
+  useEffect(() => {
+    if (accounts.length > 0) {
+      setSettlementForm((prev) => ({
+        ...prev,
+        accountId: prev.accountId || accounts[0].id,
+      }));
+    }
+  }, [accounts]);
+
+  const loadSettlements = useCallback(
+    async (liabilityId: string) => {
+      setIsLoadingSettlements(true);
+      try {
+        const data = await walletApi.settlements.getByLiabilityId(liabilityId);
+        setSettlements(data);
+      } catch (err) {
+        console.error('Load settlements error:', err);
+        setError(handleApiError(err));
+      } finally {
+        setIsLoadingSettlements(false);
+      }
+    },
+    [setError],
+  );
+
   useEffect(() => {
     loadLiabilities(currentPage);
   }, [currentPage, loadLiabilities]);
@@ -67,8 +136,16 @@ export const Liabilities = () => {
         currency: liability.currency,
         occurredAt: liability.occurredAt.split('T')[0],
         dueAt: liability.dueAt ? liability.dueAt.split('T')[0] : '',
+        accountId: liability.accountId || '',
         note: liability.note || '',
       });
+      setSettlementForm({
+        amount: 0,
+        accountId: settlementForm.accountId || accounts[0]?.id || '',
+        occurredAt: new Date().toISOString().split('T')[0],
+        note: '',
+      });
+      void loadSettlements(liability.id);
     } else {
       setEditingLiability(null);
       setFormData({
@@ -77,6 +154,14 @@ export const Liabilities = () => {
         currency: 'VND',
         occurredAt: new Date().toISOString().split('T')[0],
         dueAt: '',
+        accountId: '',
+        note: '',
+      });
+      setSettlements([]);
+      setSettlementForm({
+        amount: 0,
+        accountId: accounts[0]?.id || '',
+        occurredAt: new Date().toISOString().split('T')[0],
         note: '',
       });
     }
@@ -92,8 +177,55 @@ export const Liabilities = () => {
       currency: 'VND',
       occurredAt: new Date().toISOString().split('T')[0],
       dueAt: '',
+      accountId: '',
       note: '',
     });
+    setSettlements([]);
+    setSettlementForm({
+      amount: 0,
+      accountId: accounts[0]?.id || '',
+      occurredAt: new Date().toISOString().split('T')[0],
+      note: '',
+    });
+  };
+
+  const handleCreateSettlement = async () => {
+    if (!editingLiability) {
+      return;
+    }
+    if (settlementForm.amount <= 0) {
+      setError('Số tiền trả phải lớn hơn 0');
+      return;
+    }
+    // accountId là optional, không cần validate
+
+    setError(null);
+    setIsSavingSettlement(true);
+
+    try {
+      const occurredAtIso = settlementForm.occurredAt
+        ? new Date(settlementForm.occurredAt).toISOString()
+        : new Date().toISOString();
+
+      await walletApi.transactions.create({
+        type: 'LIABILITY_SETTLEMENT',
+        amount: settlementForm.amount,
+        currency: editingLiability.currency,
+        accountId: settlementForm.accountId || undefined, // Empty string -> undefined
+        liabilityId: editingLiability.id,
+        occurredAt: occurredAtIso,
+        note: settlementForm.note || undefined,
+      });
+
+      await loadLiabilities(currentPage);
+
+      // Đóng modal sau khi ghi nhận thành công
+      handleCloseModal();
+    } catch (err) {
+      setError(handleApiError(err));
+    } finally {
+      setIsSavingSettlement(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,6 +241,7 @@ export const Liabilities = () => {
           currency: formData.currency,
           occurredAt: formData.occurredAt ? new Date(formData.occurredAt).toISOString() : undefined,
           dueAt: formData.dueAt ? new Date(formData.dueAt).toISOString() : undefined,
+          accountId: formData.accountId || undefined,
           note: formData.note || undefined,
         };
         await walletApi.liabilities.update(editingLiability.id, data);
@@ -119,6 +252,7 @@ export const Liabilities = () => {
           currency: formData.currency,
           occurredAt: formData.occurredAt ? new Date(formData.occurredAt).toISOString() : undefined,
           dueAt: formData.dueAt ? new Date(formData.dueAt).toISOString() : undefined,
+          accountId: formData.accountId || undefined,
           note: formData.note || undefined,
         };
         await walletApi.liabilities.create(data);
@@ -301,6 +435,131 @@ export const Liabilities = () => {
             </DialogDescription>
           </DialogHeader>
 
+          {editingLiability && (
+            <div className="settlement-section">
+              <div className="settlement-header">
+                <h3 className="settlement-title">Lịch sử trả nợ</h3>
+                <p className="settlement-subtitle">
+                  Xem các lần bạn đã trả tiền cho khoản nợ này.
+                </p>
+              </div>
+
+              <div className="settlement-history">
+                {isLoadingSettlements ? (
+                  <div className="settlement-loading">Đang tải lịch sử trả nợ...</div>
+                ) : settlements.length === 0 ? (
+                  <div className="settlement-empty">Chưa có lần trả nợ nào.</div>
+                ) : (
+                  <div className="settlement-list">
+                    {settlements.map((settlement) => (
+                      <div key={settlement.id} className="settlement-item">
+                        <div className="settlement-row">
+                          <span className="settlement-label">Số tiền</span>
+                          <span className="settlement-value">
+                            {formatCurrency(settlement.amount, settlement.currency)}
+                          </span>
+                        </div>
+                        <div className="settlement-row">
+                          <span className="settlement-label">Ngày</span>
+                          <span className="settlement-value">
+                            {formatDate(settlement.occurredAt)}
+                          </span>
+                        </div>
+                        {settlement.note && (
+                          <div className="settlement-row">
+                            <span className="settlement-label">Ghi chú</span>
+                            <span className="settlement-value">{settlement.note}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="settlement-form">
+                <h4 className="settlement-form-title">Trả nợ một phần</h4>
+                <div className="settlement-form-grid">
+                  <div className="settlement-form-field">
+                    <Label className="label">Số tiền *</Label>
+                    <AmountInput
+                      className="input"
+                      value={settlementForm.amount}
+                      onChange={(value) =>
+                        setSettlementForm({
+                          ...settlementForm,
+                          amount: value,
+                        })
+                      }
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="settlement-form-field">
+                    <Label className="label">Tài khoản trả</Label>
+                    <Select
+                      value={settlementForm.accountId || undefined}
+                      onValueChange={(value) =>
+                        setSettlementForm({
+                          ...settlementForm,
+                          accountId: value || '',
+                        })
+                      }
+                    >
+                      <SelectTrigger className="select settlement-account-select">
+                        <SelectValue placeholder="Không có tài khoản" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {accounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            {account.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="settlement-form-field">
+                    <Label className="label">Ngày trả</Label>
+                    <Input
+                      className="input"
+                      type="date"
+                      value={settlementForm.occurredAt}
+                      onChange={(e) =>
+                        setSettlementForm({
+                          ...settlementForm,
+                          occurredAt: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="settlement-form-note">
+                  <Label className="label">Ghi chú</Label>
+                  <Textarea
+                    value={settlementForm.note}
+                    onChange={(e) =>
+                      setSettlementForm({
+                        ...settlementForm,
+                        note: e.target.value,
+                      })
+                    }
+                    placeholder="Ví dụ: Trả lần 1, chuyển khoản..."
+                    rows={2}
+                  />
+                </div>
+                <div className="settlement-form-actions">
+                  <Button
+                    type="button"
+                    className="settlement-submit-button"
+                    disabled={isSavingSettlement}
+                    onClick={handleCreateSettlement}
+                  >
+                    {isSavingSettlement ? 'Đang ghi nhận...' : 'Ghi nhận lần trả này'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form className="form" onSubmit={handleSubmit}>
             <div className="form-group">
               <Label className="label">Tên chủ nợ *</Label>
@@ -316,13 +575,10 @@ export const Liabilities = () => {
 
             <div className="form-group">
               <Label className="label">Số tiền *</Label>
-              <Input
+              <AmountInput
                 className="input"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.amount || ''}
-                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+                value={formData.amount}
+                onChange={(value) => setFormData({ ...formData, amount: value })}
                 placeholder="0"
                 required
               />
@@ -341,6 +597,25 @@ export const Liabilities = () => {
                   <SelectItem value="VND">VND (₫)</SelectItem>
                   <SelectItem value="USD">USD ($)</SelectItem>
                   <SelectItem value="EUR">EUR (€)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="form-group">
+              <Label className="label">Tài khoản trả tiền</Label>
+              <Select
+                value={formData.accountId || undefined}
+                onValueChange={(value) => setFormData({ ...formData, accountId: value || '' })}
+              >
+                <SelectTrigger className="select">
+                  <SelectValue placeholder="Không có tài khoản" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -626,6 +901,12 @@ const LiabilitiesWrapper = styled.div`
 
 // Styled DialogContent with modal styles
 const StyledDialogContent = styled(DialogContent)`
+  max-height: 90vh;
+  max-width: 600px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
   .modal-title {
     font-size: ${({ theme }) => theme.typography.fontSize.xl};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
@@ -724,6 +1005,118 @@ const StyledDialogContent = styled(DialogContent)`
 
         &:hover {
           border-color: ${({ theme }) => theme.colors.text.secondary};
+        }
+      }
+    }
+  }
+
+  .settlement-section {
+    margin-bottom: ${({ theme }) => theme.spacing[6]};
+    padding: ${({ theme }) => theme.spacing[4]};
+    background: ${({ theme }) => theme.colors.surface};
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-radius: ${({ theme }) => theme.borderRadius.lg};
+    display: flex;
+    flex-direction: column;
+    gap: ${({ theme }) => theme.spacing[4]};
+
+    .settlement-header {
+      display: flex;
+      flex-direction: column;
+      gap: ${({ theme }) => theme.spacing[1]};
+
+      .settlement-title {
+        font-size: ${({ theme }) => theme.typography.fontSize.lg};
+        font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+        color: ${({ theme }) => theme.colors.text.primary};
+        margin: 0;
+      }
+
+      .settlement-subtitle {
+        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        color: ${({ theme }) => theme.colors.text.secondary};
+        margin: 0;
+      }
+    }
+
+    .settlement-history {
+      .settlement-loading,
+      .settlement-empty {
+        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        color: ${({ theme }) => theme.colors.text.secondary};
+      }
+
+      .settlement-list {
+        display: flex;
+        flex-direction: column;
+        gap: ${({ theme }) => theme.spacing[3]};
+
+        .settlement-item {
+          padding: ${({ theme }) => theme.spacing[3]};
+          border-radius: ${({ theme }) => theme.borderRadius.md};
+          background: ${({ theme }) => theme.colors.background};
+          border: 1px solid ${({ theme }) => theme.colors.border};
+          display: flex;
+          flex-direction: column;
+          gap: ${({ theme }) => theme.spacing[1]};
+
+          .settlement-row {
+            display: flex;
+            justify-content: space-between;
+            gap: ${({ theme }) => theme.spacing[2]};
+            font-size: ${({ theme }) => theme.typography.fontSize.sm};
+
+            .settlement-label {
+              color: ${({ theme }) => theme.colors.text.secondary};
+            }
+
+            .settlement-value {
+              color: ${({ theme }) => theme.colors.text.primary};
+              font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+            }
+          }
+        }
+      }
+    }
+
+    .settlement-form {
+      border-top: 1px dashed ${({ theme }) => theme.colors.border};
+      padding-top: ${({ theme }) => theme.spacing[4]};
+      display: flex;
+      flex-direction: column;
+      gap: ${({ theme }) => theme.spacing[3]};
+
+      .settlement-form-title {
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
+        font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+        color: ${({ theme }) => theme.colors.text.primary};
+        margin: 0;
+      }
+
+      .settlement-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: ${({ theme }) => theme.spacing[3]};
+
+        .settlement-form-field {
+          display: flex;
+          flex-direction: column;
+          gap: ${({ theme }) => theme.spacing[1]};
+        }
+      }
+
+      .settlement-form-note {
+        display: flex;
+        flex-direction: column;
+        gap: ${({ theme }) => theme.spacing[1]};
+      }
+
+      .settlement-form-actions {
+        display: flex;
+        justify-content: flex-end;
+
+        .settlement-submit-button {
+          min-width: 180px;
         }
       }
     }

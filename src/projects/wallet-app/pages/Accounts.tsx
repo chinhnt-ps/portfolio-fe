@@ -5,6 +5,8 @@ import { Icon } from '../components/icons';
 import { handleApiError } from '../api/walletApi';
 import type { Account, CreateAccountRequest, AccountType } from '../api/types';
 import { customScrollbar } from '../utils/scrollbarStyles';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletAccounts, addWalletAccount, updateWalletAccount, removeWalletAccount } from '@/store/slices/accountsSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,8 +23,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
  * Quản lý tài khoản/ví (CRUD)
  */
 export const Accounts = () => {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  
+  // Redux state
+  const accounts = useAppSelector((state) => state.walletAccounts.items);
+  const isLoading = useAppSelector((state) => state.walletAccounts.isLoading);
+  const accountsError = useAppSelector((state) => state.walletAccounts.error);
+  const accountsLastFetched = useAppSelector((state) => state.walletAccounts.lastFetched);
+  
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
@@ -36,23 +44,24 @@ export const Accounts = () => {
     note: '',
   });
 
+  // Load accounts from Redux (only if not fetched recently)
   useEffect(() => {
-    loadAccounts();
-  }, []);
-
-  const loadAccounts = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const accountsData = await walletApi.accounts.getAll();
-      setAccounts(accountsData);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
-      setIsLoading(false);
+    // Tránh gọi API nếu đang loading
+    if (isLoading) return;
+    
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    
+    if (!accountsLastFetched || accountsLastFetched < fiveMinutesAgo) {
+      dispatch(fetchWalletAccounts());
     }
-  };
+  }, [dispatch, accountsLastFetched, isLoading]);
+
+  // Combine Redux error with local error
+  useEffect(() => {
+    if (accountsError) {
+      setError(accountsError);
+    }
+  }, [accountsError]);
 
   const handleOpenModal = (account?: Account) => {
     if (account) {
@@ -96,11 +105,12 @@ export const Accounts = () => {
 
     try {
       if (editingAccount) {
-        await walletApi.accounts.update(editingAccount.id, formData);
+        const updated = await walletApi.accounts.update(editingAccount.id, formData);
+        dispatch(updateWalletAccount(updated));
       } else {
-        await walletApi.accounts.create(formData);
+        const created = await walletApi.accounts.create(formData);
+        dispatch(addWalletAccount(created));
       }
-      await loadAccounts();
       handleCloseModal();
     } catch (err) {
       setError(handleApiError(err));
@@ -116,7 +126,7 @@ export const Accounts = () => {
 
     try {
       await walletApi.accounts.delete(account.id);
-      await loadAccounts();
+      dispatch(removeWalletAccount(account.id));
     } catch (err) {
       setError(handleApiError(err));
     }

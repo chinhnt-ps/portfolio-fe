@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
@@ -18,8 +18,15 @@ export const Budgets = () => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Track xem đã gọi API chưa để tránh gọi 2 lần do React Strict Mode
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
+    // Tránh gọi API 2 lần do React Strict Mode
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+    
     loadBudgets();
   }, []);
 
