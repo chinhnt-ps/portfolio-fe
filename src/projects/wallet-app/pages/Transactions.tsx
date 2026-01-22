@@ -54,12 +54,17 @@ export const Transactions = () => {
     sortOrder: 'desc',
   });
 
-  // Get lastFetched from Redux state
+  // Get lastFetched and isLoading from Redux state
   const accountsLastFetched = useAppSelector((state) => state.walletAccounts.lastFetched);
   const categoriesLastFetched = useAppSelector((state) => state.categories.lastFetched);
+  const accountsLoading = useAppSelector((state) => state.walletAccounts.isLoading);
+  const categoriesLoading = useAppSelector((state) => state.categories.isLoading);
 
   // Load accounts and categories from Redux
   useEffect(() => {
+    // Tránh gọi API nếu đang loading
+    if (accountsLoading || categoriesLoading) return;
+    
     const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
     
     // Chỉ fetch nếu chưa có data hoặc data đã cũ (hơn 5 phút)
@@ -69,7 +74,7 @@ export const Transactions = () => {
     if (!categoriesLastFetched || categoriesLastFetched < fiveMinutesAgo) {
       dispatch(fetchCategories());
     }
-  }, [dispatch, accountsLastFetched, categoriesLastFetched]);
+  }, [dispatch, accountsLastFetched, categoriesLastFetched, accountsLoading, categoriesLoading]);
 
   // Memoize date calculation
   const dateRange = useMemo(() => {
@@ -86,19 +91,44 @@ export const Transactions = () => {
     return { startDate, endDate };
   }, [filters.startDate, filters.endDate]);
 
+  // Use ref to track if we're already loading to prevent duplicate calls
+  const isLoadingRef = useRef(false);
+  const lastFiltersRef = useRef<string>('');
+  const filtersRef = useRef(filters);
+  const dateRangeRef = useRef(dateRange);
+  const searchKeywordRef = useRef(searchKeyword);
+
+  // Keep refs in sync
+  useEffect(() => {
+    filtersRef.current = filters;
+    dateRangeRef.current = dateRange;
+    searchKeywordRef.current = searchKeyword;
+  }, [filters, dateRange, searchKeyword]);
+
+  // Load transactions function - can be called manually or via effect
   const loadTransactions = useCallback(async () => {
+    // Prevent duplicate calls
+    if (isLoadingRef.current) {
+      return;
+    }
+
     // Save scroll position before loading
     scrollPositionRef.current = window.scrollY || document.documentElement.scrollTop;
     
+    isLoadingRef.current = true;
     setIsLoading(true);
     setError(null);
 
     try {
+      const currentFilters = filtersRef.current;
+      const currentDateRange = dateRangeRef.current;
+      const currentKeyword = searchKeywordRef.current;
+
       const result = await walletApi.transactions.getAll({
-        ...filters,
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
-        keyword: searchKeyword || undefined,
+        ...currentFilters,
+        startDate: currentDateRange.startDate,
+        endDate: currentDateRange.endDate,
+        keyword: currentKeyword || undefined,
       });
       setTransactions(result.content);
       setPagination(result);
@@ -106,17 +136,56 @@ export const Transactions = () => {
       setError(handleApiError(err));
       console.error('Transactions load error:', err);
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
       // Restore scroll position after a short delay
       requestAnimationFrame(() => {
         window.scrollTo(0, scrollPositionRef.current);
       });
     }
-  }, [filters, dateRange.startDate, dateRange.endDate, searchKeyword]);
+  }, []); // Empty deps - uses refs instead
 
+  // Load transactions - only when filters actually change
   useEffect(() => {
+    // Create a stable key from filters to detect actual changes
+    const filtersKey = JSON.stringify({
+      page: filters.page,
+      size: filters.size,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+      type: filters.type,
+      categoryId: filters.categoryId,
+      accountId: filters.accountId,
+      minAmount: filters.minAmount,
+      maxAmount: filters.maxAmount,
+      keyword: filters.keyword,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+    });
+
+    // Skip if filters haven't actually changed
+    if (lastFiltersRef.current === filtersKey) {
+      return;
+    }
+
+    lastFiltersRef.current = filtersKey;
     loadTransactions();
-  }, [loadTransactions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    filters.page,
+    filters.size,
+    filters.sortBy,
+    filters.sortOrder,
+    filters.type,
+    filters.categoryId,
+    filters.accountId,
+    filters.minAmount,
+    filters.maxAmount,
+    filters.keyword,
+    dateRange.startDate,
+    dateRange.endDate,
+    searchKeyword,
+  ]);
 
   // Debounce search keyword
   useEffect(() => {
@@ -212,7 +281,39 @@ export const Transactions = () => {
   }, []);
 
   const formatDate = useCallback((dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
+    // Backend trả về LocalDateTime dạng "YYYY-MM-DDTHH:mm:ss" (không có timezone)
+    // Cần parse như local time để hiển thị đúng
+    let date: Date;
+    
+    // Nếu không có timezone indicator (Z hoặc +/-), parse như local time
+    if (!dateString.includes('Z') && !dateString.match(/[+-]\d{2}:\d{2}$/)) {
+      // Format: "YYYY-MM-DDTHH:mm:ss" - parse như local time (không convert timezone)
+      const parts = dateString.split('T');
+      if (parts.length === 2) {
+        const datePart = parts[0];
+        const timePart = parts[1].split('.')[0]; // Remove milliseconds if any
+        const timeParts = timePart.split(':');
+        
+        const year = parseInt(datePart.split('-')[0], 10);
+        const month = parseInt(datePart.split('-')[1], 10) - 1; // Month is 0-indexed
+        const day = parseInt(datePart.split('-')[2], 10);
+        const hours = parseInt(timeParts[0] || '0', 10);
+        const minutes = parseInt(timeParts[1] || '0', 10);
+        const seconds = parseInt(timeParts[2] || '0', 10);
+        
+        // Create date in local timezone (không convert)
+        date = new Date(year, month, day, hours, minutes, seconds);
+      } else {
+        // Fallback to Date constructor
+        date = new Date(dateString);
+      }
+    } else {
+      // Có timezone indicator, parse bình thường (sẽ convert sang local timezone)
+      date = new Date(dateString);
+    }
+    
+    // Format: "DD/MM/YYYY, HH:mm" - hiển thị local time
+    return date.toLocaleDateString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -504,18 +605,32 @@ export const Transactions = () => {
                 <div className="transaction-main">
                   <div className="transaction-left">
                     <Badge 
-                      variant={transaction.type === 'EXPENSE' ? 'destructive' : transaction.type === 'INCOME' ? 'default' : 'secondary'}
-                      className={`transaction-type-badge transaction-type-badge--${transaction.type.toLowerCase()}`}
+                      variant={
+                        transaction.type === 'EXPENSE' ? 'destructive' : 
+                        transaction.type === 'INCOME' ? 'default' : 
+                        transaction.type === 'RECEIVABLE_SETTLEMENT' ? 'default' :
+                        transaction.type === 'LIABILITY_SETTLEMENT' ? 'destructive' :
+                        'secondary'
+                      }
+                      className={`transaction-type-badge transaction-type-badge--${transaction.type.toLowerCase().replace('_', '-')}`}
                     >
                       {transaction.type === 'EXPENSE' ? t('wallet.transactions.expense') : 
                        transaction.type === 'INCOME' ? t('wallet.transactions.income') : 
-                       t('wallet.transactions.transfer')}
+                       transaction.type === 'TRANSFER' ? t('wallet.transactions.transfer') :
+                       transaction.type === 'RECEIVABLE_SETTLEMENT' ? t('wallet.transactions.receivableSettlement', 'Thu nợ') :
+                       transaction.type === 'LIABILITY_SETTLEMENT' ? t('wallet.transactions.liabilitySettlement', 'Trả nợ') :
+                       transaction.type}
                     </Badge>
                     <div className="transaction-info">
                       <div className="transaction-category">
                         {transaction.category?.name || 
                          (transaction.categoryId ? categories.find(c => c.id === transaction.categoryId)?.name : null) ||
-                         transaction.type}
+                         (transaction.type === 'EXPENSE' ? t('wallet.transactions.expense') : 
+                          transaction.type === 'INCOME' ? t('wallet.transactions.income') : 
+                          transaction.type === 'TRANSFER' ? t('wallet.transactions.transfer') :
+                          transaction.type === 'RECEIVABLE_SETTLEMENT' ? t('wallet.transactions.receivableSettlement', 'Thu nợ') :
+                          transaction.type === 'LIABILITY_SETTLEMENT' ? t('wallet.transactions.liabilitySettlement', 'Trả nợ') :
+                          transaction.type)}
                       </div>
                       <div className="transaction-meta">
                         <span className="transaction-date">{formatDate(transaction.occurredAt)}</span>
@@ -538,7 +653,8 @@ export const Transactions = () => {
                   <div className="transaction-right">
                     <div className="transaction-amount-wrapper">
                       <div className={`transaction-amount transaction-amount--${transaction.type.toLowerCase()}`}>
-                        {transaction.type === 'EXPENSE' ? '-' : transaction.type === 'INCOME' ? '+' : ''}
+                        {(transaction.type === 'EXPENSE' || transaction.type === 'LIABILITY_SETTLEMENT') ? '-' : 
+                         (transaction.type === 'INCOME' || transaction.type === 'RECEIVABLE_SETTLEMENT') ? '+' : ''}
                         {formatCurrency(transaction.amount, transaction.currency)}
                       </div>
                       <div className="transaction-actions" onClick={(e) => e.stopPropagation()}>
@@ -1171,6 +1287,8 @@ const TransactionsWrapper = styled.div`
             text-transform: uppercase;
             letter-spacing: 0.5px;
             flex-shrink: 0;
+            min-width: 72px;
+            text-align: center;
 
             &--expense {
               background: ${({ theme }) => theme.colors.error}20;
@@ -1185,6 +1303,16 @@ const TransactionsWrapper = styled.div`
             &--transfer {
               background: ${({ theme }) => theme.colors.primary}20;
               color: ${({ theme }) => theme.colors.primary};
+            }
+
+            &--receivable-settlement {
+              background: ${({ theme }) => theme.colors.success?.[500] ? `${theme.colors.success[500]}20` : '#10b98120'};
+              color: ${({ theme }) => theme.colors.success?.[500] || '#10b981'};
+            }
+
+            &--liability-settlement {
+              background: ${({ theme }) => theme.colors.warning?.[500] ? `${theme.colors.warning[500]}20` : '#f59e0b20'};
+              color: ${({ theme }) => theme.colors.warning?.[500] || '#f59e0b'};
             }
           }
 
@@ -1266,6 +1394,14 @@ const TransactionsWrapper = styled.div`
 
             &--expense {
               color: ${({ theme }) => theme.colors.error || '#ef4444'};
+            }
+
+            &--receivable_settlement {
+              color: ${({ theme }) => theme.colors.success?.[500] || '#10b981'};
+            }
+
+            &--liability_settlement {
+              color: ${({ theme }) => theme.colors.warning?.[500] || '#f59e0b'};
             }
           }
 

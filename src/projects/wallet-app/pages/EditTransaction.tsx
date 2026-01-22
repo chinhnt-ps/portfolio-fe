@@ -3,9 +3,13 @@ import styled from 'styled-components';
 import { useWalletAppRouter } from '../App';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
-import type { UpdateTransactionRequest, Account, Category, Transaction } from '../api/types';
+import type { UpdateTransactionRequest, Transaction } from '../api/types';
 import { Icon } from '../components/icons';
 import { Textarea } from '@/components/ui/textarea';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletAccounts } from '@/store/slices/accountsSlice';
+import { fetchCategories } from '@/store/slices/categoriesSlice';
+import { formatForDateTimeLocal, convertDateTimeLocalToISO } from '../utils/dateUtils';
 
 /**
  * Edit Transaction Page
@@ -15,9 +19,17 @@ import { Textarea } from '@/components/ui/textarea';
  */
 export const EditTransaction = () => {
   const { navigate } = useWalletAppRouter();
+  const dispatch = useAppDispatch();
+  
+  // Redux state for accounts and categories
+  const accounts = useAppSelector((state) => state.walletAccounts.items);
+  const categories = useAppSelector((state) => state.categories.items);
+  const accountsLastFetched = useAppSelector((state) => state.walletAccounts.lastFetched);
+  const categoriesLastFetched = useAppSelector((state) => state.categories.lastFetched);
+  const accountsLoading = useAppSelector((state) => state.walletAccounts.isLoading);
+  const categoriesLoading = useAppSelector((state) => state.categories.isLoading);
+  
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -38,30 +50,38 @@ export const EditTransaction = () => {
     }
   }, []);
 
+  // Load accounts and categories from Redux (only if not fetched recently)
+  useEffect(() => {
+    // Tránh gọi API nếu đang loading
+    if (accountsLoading || categoriesLoading) return;
+    
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    
+    if (!accountsLastFetched || accountsLastFetched < fiveMinutesAgo) {
+      dispatch(fetchWalletAccounts());
+    }
+    if (!categoriesLastFetched || categoriesLastFetched < fiveMinutesAgo) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, accountsLastFetched, categoriesLastFetched, accountsLoading, categoriesLoading]);
+
   const [formData, setFormData] = useState<UpdateTransactionRequest>({});
 
   useEffect(() => {
     if (transactionId) {
-      loadData();
+      loadTransaction();
     }
   }, [transactionId]);
 
-  const loadData = async () => {
+  const loadTransaction = async () => {
     if (!transactionId) return;
     
     setIsLoading(true);
     setError(null);
 
     try {
-      const [transactionData, accountsData, categoriesData] = await Promise.all([
-        walletApi.transactions.getById(transactionId),
-        walletApi.accounts.getAll(),
-        walletApi.categories.getAll(),
-      ]);
-
+      const transactionData = await walletApi.transactions.getById(transactionId);
       setTransaction(transactionData);
-      setAccounts(accountsData);
-      setCategories(categoriesData);
 
       // Populate form with transaction data
       setFormData({
@@ -72,7 +92,7 @@ export const EditTransaction = () => {
         categoryId: transactionData.categoryId,
         fromAccountId: transactionData.fromAccountId,
         toAccountId: transactionData.toAccountId,
-        occurredAt: transactionData.occurredAt.split('T')[0],
+        occurredAt: formatForDateTimeLocal(transactionData.occurredAt),
         note: transactionData.note,
       });
     } catch (err) {
@@ -90,7 +110,15 @@ export const EditTransaction = () => {
     try {
       if (!transaction) return;
 
-      await walletApi.transactions.update(transaction.id, formData);
+      // Convert datetime-local format to ISO string if occurredAt is present
+      const updateData: UpdateTransactionRequest = {
+        ...formData,
+        occurredAt: formData.occurredAt
+          ? convertDateTimeLocalToISO(formData.occurredAt)
+          : undefined,
+      };
+
+      await walletApi.transactions.update(transaction.id, updateData);
       navigate('transactions');
     } catch (err) {
       setError(handleApiError(err));
@@ -267,11 +295,11 @@ export const EditTransaction = () => {
         )}
 
         <div className="form-group">
-          <label className="label">Ngày giao dịch</label>
+          <label className="label">Ngày và giờ giao dịch</label>
           <input
             className="input"
-            type="date"
-            value={formData.occurredAt || transaction.occurredAt.split('T')[0]}
+            type="datetime-local"
+            value={formData.occurredAt || formatForDateTimeLocal(transaction.occurredAt)}
             onChange={(e) => handleChange('occurredAt', e.target.value)}
           />
         </div>

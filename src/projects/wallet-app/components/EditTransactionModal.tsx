@@ -5,8 +5,10 @@ import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
 import type { UpdateTransactionRequest, Transaction } from '../api/types';
 import { Icon } from './icons';
+import { AmountInput } from './AmountInput';
 import { useAppSelector } from '@/store/hooks';
 import { Textarea } from '@/components/ui/textarea';
+import { formatForDateTimeLocal, convertDateTimeLocalToISO } from '../utils/dateUtils';
 
 interface EditTransactionModalProps {
   transactionId: string;
@@ -74,7 +76,7 @@ export const EditTransactionModal = ({
         categoryId: transactionData.categoryId,
         fromAccountId: transactionData.fromAccountId,
         toAccountId: transactionData.toAccountId,
-        occurredAt: transactionData.occurredAt.split('T')[0],
+        occurredAt: formatForDateTimeLocal(transactionData.occurredAt),
         note: transactionData.note,
       });
     } catch (err) {
@@ -92,7 +94,15 @@ export const EditTransactionModal = ({
     try {
       if (!transaction) return;
 
-      await walletApi.transactions.update(transaction.id, formData);
+      // Convert datetime-local format to ISO string if occurredAt is present
+      const updateData: UpdateTransactionRequest = {
+        ...formData,
+        occurredAt: formData.occurredAt
+          ? convertDateTimeLocalToISO(formData.occurredAt)
+          : undefined,
+      };
+
+      await walletApi.transactions.update(transaction.id, updateData);
       onSuccess?.();
       onClose();
     } catch (err) {
@@ -164,13 +174,10 @@ export const EditTransactionModal = ({
 
             <div className="form-group">
               <label className="label">{t('wallet.transactions.amount') || 'Số tiền'} *</label>
-              <input
+              <AmountInput
                 className="input"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.amount || transaction.amount}
-                onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
+                value={formData.amount ?? transaction.amount}
+                onChange={(value) => handleChange('amount', value)}
                 required
               />
             </div>
@@ -263,11 +270,11 @@ export const EditTransactionModal = ({
             )}
 
             <div className="form-group">
-              <label className="label">{t('wallet.transactions.date') || 'Ngày giao dịch'}</label>
+              <label className="label">{t('wallet.transactions.date') || 'Ngày và giờ giao dịch'}</label>
               <input
                 className="input"
-                type="date"
-                value={formData.occurredAt || transaction.occurredAt.split('T')[0]}
+                type="datetime-local"
+                value={formData.occurredAt || formatForDateTimeLocal(transaction.occurredAt)}
                 onChange={(e) => handleChange('occurredAt', e.target.value)}
               />
             </div>

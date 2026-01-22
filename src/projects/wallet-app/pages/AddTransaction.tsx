@@ -3,9 +3,19 @@ import styled from 'styled-components';
 import { useWalletAppRouter } from '../App';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
-import type { CreateTransactionRequest, Account, Category } from '../api/types';
+import type {
+  CreateTransactionRequest,
+  Receivable,
+  Liability,
+  TransactionType,
+} from '../api/types';
 import { Icon } from '../components/icons';
+import { AmountInput } from '../components/AmountInput';
 import { Textarea } from '@/components/ui/textarea';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchWalletAccounts } from '@/store/slices/accountsSlice';
+import { fetchCategories } from '@/store/slices/categoriesSlice';
+import { formatForDateTimeLocal, convertDateTimeLocalToISO } from '../utils/dateUtils';
 
 /**
  * Add Transaction Page
@@ -14,8 +24,18 @@ import { Textarea } from '@/components/ui/textarea';
  */
 export const AddTransaction = () => {
   const { navigate } = useWalletAppRouter();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const dispatch = useAppDispatch();
+  
+  // Redux state for accounts and categories
+  const accounts = useAppSelector((state) => state.walletAccounts.items);
+  const categories = useAppSelector((state) => state.categories.items);
+  const accountsLastFetched = useAppSelector((state) => state.walletAccounts.lastFetched);
+  const categoriesLastFetched = useAppSelector((state) => state.categories.lastFetched);
+  const accountsLoading = useAppSelector((state) => state.walletAccounts.isLoading);
+  const categoriesLoading = useAppSelector((state) => state.categories.isLoading);
+  
+  const [receivables, setReceivables] = useState<Receivable[]>([]);
+  const [liabilities, setLiabilities] = useState<Liability[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,12 +44,50 @@ export const AddTransaction = () => {
     amount: 0,
     currency: 'VND',
     accountId: '',
-    occurredAt: new Date().toISOString().split('T')[0],
+    occurredAt: formatForDateTimeLocal(new Date().toISOString()),
   });
 
+  // Load accounts and categories from Redux (only if not fetched recently)
   useEffect(() => {
-    loadAccountsAndCategories();
+    // Tránh gọi API nếu đang loading
+    if (accountsLoading || categoriesLoading) return;
+    
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    
+    if (!accountsLastFetched || accountsLastFetched < fiveMinutesAgo) {
+      dispatch(fetchWalletAccounts());
+    }
+    if (!categoriesLastFetched || categoriesLastFetched < fiveMinutesAgo) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, accountsLastFetched, categoriesLastFetched, accountsLoading, categoriesLoading]);
+
+  // Load receivables and liabilities (these are not in Redux, so load directly)
+  useEffect(() => {
+    const loadReceivablesAndLiabilities = async () => {
+      try {
+        const [receivablesPage, liabilitiesPage] = await Promise.all([
+          walletApi.receivables.getAll(0, 100),
+          walletApi.liabilities.getAll(0, 100),
+        ]);
+        setReceivables(receivablesPage.content || []);
+        setLiabilities(liabilitiesPage.content || []);
+      } catch (err) {
+        console.error('Load receivables/liabilities error:', err);
+      }
+    };
+    loadReceivablesAndLiabilities();
   }, []);
+
+  // Set default account when accounts are loaded
+  useEffect(() => {
+    if (accounts.length > 0 && !formData.accountId) {
+      setFormData((prev) => ({
+        ...prev,
+        accountId: accounts[0].id,
+      }));
+    }
+  }, [accounts, formData.accountId]);
 
   useEffect(() => {
     // Reset transfer fields when type changes
@@ -40,28 +98,21 @@ export const AddTransaction = () => {
         toAccountId: undefined,
       }));
     }
-  }, [formData.type]);
 
-  const loadAccountsAndCategories = async () => {
-    try {
-      const [accountsData, categoriesData] = await Promise.all([
-        walletApi.accounts.getAll(),
-        walletApi.categories.getAll(),
-      ]);
-      setAccounts(accountsData);
-      setCategories(categoriesData);
-
-      // Set default account if available
-      if (accountsData.length > 0 && !formData.accountId) {
-        setFormData((prev) => ({
-          ...prev,
-          accountId: accountsData[0].id,
-        }));
-      }
-    } catch (err) {
-      console.error('Load accounts/categories error:', err);
+    if (formData.type !== 'RECEIVABLE_SETTLEMENT') {
+      setFormData((prev) => ({
+        ...prev,
+        receivableId: undefined,
+      }));
     }
-  };
+
+    if (formData.type !== 'LIABILITY_SETTLEMENT') {
+      setFormData((prev) => ({
+        ...prev,
+        liabilityId: undefined,
+      }));
+    }
+  }, [formData.type]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,10 +121,6 @@ export const AddTransaction = () => {
 
     try {
       // Validate form
-      if (!formData.accountId) {
-        throw new Error('Vui lòng chọn tài khoản');
-      }
-
       if (formData.amount <= 0) {
         throw new Error('Số tiền phải lớn hơn 0');
       }
@@ -85,15 +132,31 @@ export const AddTransaction = () => {
         if (formData.fromAccountId === formData.toAccountId) {
           throw new Error('Tài khoản nguồn và đích phải khác nhau');
         }
+      } else if (formData.type === 'EXPENSE' || formData.type === 'INCOME') {
+        // EXPENSE/INCOME require accountId
+        if (!formData.accountId) {
+          throw new Error('Vui lòng chọn tài khoản');
+        }
+      } else if (formData.type === 'RECEIVABLE_SETTLEMENT') {
+        if (!formData.receivableId) {
+          throw new Error('Vui lòng chọn khoản cho vay cần ghi nhận');
+        }
+        // accountId là optional cho settlement
+      } else if (formData.type === 'LIABILITY_SETTLEMENT') {
+        if (!formData.liabilityId) {
+          throw new Error('Vui lòng chọn khoản nợ cần ghi nhận');
+        }
+        // accountId là optional cho settlement
       }
 
-      // Convert date to ISO string
+      // Convert datetime-local format to ISO string
       const occurredAt = formData.occurredAt
-        ? new Date(formData.occurredAt).toISOString()
+        ? convertDateTimeLocalToISO(formData.occurredAt)
         : new Date().toISOString();
 
       await walletApi.transactions.create({
         ...formData,
+        accountId: formData.accountId || undefined, // Empty string -> undefined
         occurredAt,
       });
 
@@ -134,24 +197,23 @@ export const AddTransaction = () => {
           <select
             className="select"
             value={formData.type}
-            onChange={(e) => handleChange('type', e.target.value)}
+            onChange={(e) => handleChange('type', e.target.value as TransactionType)}
             required
           >
             <option value="EXPENSE">Chi tiêu</option>
             <option value="INCOME">Thu nhập</option>
             <option value="TRANSFER">Chuyển khoản</option>
+            <option value="RECEIVABLE_SETTLEMENT">Nhận tiền cho vay</option>
+            <option value="LIABILITY_SETTLEMENT">Trả nợ</option>
           </select>
         </div>
 
         <div className="form-group">
           <label className="label">Số tiền *</label>
-          <input
+          <AmountInput
             className="input"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.amount || ''}
-            onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
+            value={formData.amount}
+            onChange={(value) => handleChange('amount', value)}
             placeholder="0"
             required
           />
@@ -208,6 +270,84 @@ export const AddTransaction = () => {
               </select>
             </div>
           </div>
+        ) : formData.type === 'RECEIVABLE_SETTLEMENT' ? (
+          <>
+            <div className="form-group">
+              <label className="label">Tài khoản</label>
+              <select
+                className="select"
+                value={formData.accountId || ''}
+                onChange={(e) => handleChange('accountId', e.target.value || undefined)}
+              >
+                <option value="">Không có tài khoản</option>
+                {accounts.map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name} ({account.type})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="label">Khoản cho vay *</label>
+              <select
+                className="select"
+                value={formData.receivableId || ''}
+                onChange={(e) => handleChange('receivableId', e.target.value || undefined)}
+                required
+              >
+                <option value="">Chọn khoản cho vay</option>
+                {receivables.map((rec) => (
+                  <option key={rec.id} value={rec.id}>
+                    {rec.counterpartyName} - Còn lại:{' '}
+                    {new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: rec.currency,
+                    }).format(rec.remainingAmount)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : formData.type === 'LIABILITY_SETTLEMENT' ? (
+          <>
+            <div className="form-group">
+              <label className="label">Tài khoản</label>
+              <select
+                className="select"
+                value={formData.accountId || ''}
+                onChange={(e) => handleChange('accountId', e.target.value || undefined)}
+              >
+                <option value="">Không có tài khoản</option>
+                {accounts.map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name} ({account.type})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="label">Khoản nợ *</label>
+              <select
+                className="select"
+                value={formData.liabilityId || ''}
+                onChange={(e) => handleChange('liabilityId', e.target.value || undefined)}
+                required
+              >
+                <option value="">Chọn khoản nợ</option>
+                {liabilities.map((liab) => (
+                  <option key={liab.id} value={liab.id}>
+                    {liab.counterpartyName} - Còn lại:{' '}
+                    {new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: liab.currency,
+                    }).format(liab.remainingAmount)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
         ) : (
           <>
             <div className="form-group">
@@ -246,10 +386,10 @@ export const AddTransaction = () => {
         )}
 
         <div className="form-group">
-          <label className="label">Ngày giao dịch</label>
+          <label className="label">Ngày và giờ giao dịch</label>
           <input
             className="input"
-            type="date"
+            type="datetime-local"
             value={formData.occurredAt || ''}
             onChange={(e) => handleChange('occurredAt', e.target.value)}
           />
