@@ -205,7 +205,15 @@ export const ConfirmDraftDialog = ({
 
   const canSubmit = () => {
     if (isTransaction && transactionDraft) {
-      return transactionDraft.amount && transactionDraft.categoryId && transactionDraft.accountId;
+      if (transactionDraft.type === 'TRANSFER') {
+        return (
+          !!transactionDraft.amount &&
+          !!transactionDraft.fromAccountId &&
+          !!transactionDraft.toAccountId &&
+          transactionDraft.fromAccountId !== transactionDraft.toAccountId
+        );
+      }
+      return !!transactionDraft.amount && !!transactionDraft.categoryId && !!transactionDraft.accountId;
     }
     if (isReceivable && receivableDraft) {
       return receivableDraft.amount && receivableDraft.counterpartyName;
@@ -284,7 +292,16 @@ export const ConfirmDraftDialog = ({
               value={transactionDraft.type || 'EXPENSE'}
               onValueChange={(value) => {
                 if (isTransaction && transactionDraft) {
-                  setDraft({ ...transactionDraft, type: value as 'EXPENSE' | 'INCOME' | 'TRANSFER' } as TransactionDraft);
+                  const nextType = value as 'EXPENSE' | 'INCOME' | 'TRANSFER';
+                  setDraft({
+                    ...transactionDraft,
+                    type: nextType,
+                    // TRANSFER không dùng categoryId/accountId
+                    categoryId: nextType === 'TRANSFER' ? undefined : transactionDraft.categoryId,
+                    categoryName: nextType === 'TRANSFER' ? undefined : transactionDraft.categoryName,
+                    accountId: nextType === 'TRANSFER' ? undefined : transactionDraft.accountId,
+                    accountName: nextType === 'TRANSFER' ? undefined : transactionDraft.accountName,
+                  } as TransactionDraft);
                 }
               }}
             >
@@ -299,83 +316,150 @@ export const ConfirmDraftDialog = ({
             </Select>
           </div>
 
-          {/* Category */}
-          <div className="draft-field">
-            <Label>Danh mục {needConfirmFields.includes('categoryId') && <span className="required">*</span>}</Label>
-            {transactionDraft.categoryId && transactionDraft.categoryName ? (
-              <div className="draft-value">
-                {transactionDraft.categoryName}
-                {autoFilledFields.find(f => f.field === 'categoryId') && (
-                  <Badge variant="secondary" className="auto-filled-badge">Tự động</Badge>
-                )}
-              </div>
-            ) : (
-              <Select
-                value={transactionDraft.categoryId || ''}
-                onValueChange={(value) => {
-                  const category = categories.find(c => c.id === value);
-                  if (isTransaction && transactionDraft) {
-                    setDraft({
-                      ...transactionDraft,
-                      categoryId: value,
-                      categoryName: category?.name,
-                    } as TransactionDraft);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn danh mục" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories
-                    .filter(cat => !cat.isSystem || transactionDraft.type === 'EXPENSE' || transactionDraft.type === 'INCOME')
-                    .map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
+          {transactionDraft.type === 'TRANSFER' ? (
+            <>
+              <div className="draft-field">
+                <Label>Tài khoản nguồn <span className="required">*</span></Label>
+                <Select
+                  value={transactionDraft.fromAccountId || ''}
+                  onValueChange={(value) => {
+                    const account = accounts.find(a => a.id === value);
+                    if (isTransaction && transactionDraft) {
+                      setDraft({
+                        ...transactionDraft,
+                        fromAccountId: value,
+                        fromAccountName: account?.name,
+                        // Nếu chọn trùng, reset account đích để tránh invalid
+                        toAccountId: transactionDraft.toAccountId === value ? undefined : transactionDraft.toAccountId,
+                        toAccountName: transactionDraft.toAccountId === value ? undefined : transactionDraft.toAccountName,
+                      } as TransactionDraft);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn tài khoản nguồn" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name}
                       </SelectItem>
                     ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Account */}
-          <div className="draft-field">
-            <Label>Tài khoản {needConfirmFields.includes('accountId') && <span className="required">*</span>}</Label>
-            {transactionDraft.accountId && transactionDraft.accountName ? (
-              <div className="draft-value">
-                {transactionDraft.accountName}
-                {autoFilledFields.find(f => f.field === 'accountId') && (
-                  <Badge variant="secondary" className="auto-filled-badge">Tự động</Badge>
+              <div className="draft-field">
+                <Label>Tài khoản đích <span className="required">*</span></Label>
+                <Select
+                  value={transactionDraft.toAccountId || ''}
+                  onValueChange={(value) => {
+                    const account = accounts.find(a => a.id === value);
+                    if (isTransaction && transactionDraft) {
+                      setDraft({
+                        ...transactionDraft,
+                        toAccountId: value,
+                        toAccountName: account?.name,
+                      } as TransactionDraft);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn tài khoản đích" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts
+                      .filter((account) => account.id !== transactionDraft.fromAccountId)
+                      .map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Category */}
+              <div className="draft-field">
+                <Label>Danh mục {needConfirmFields.includes('categoryId') && <span className="required">*</span>}</Label>
+                {transactionDraft.categoryId && transactionDraft.categoryName ? (
+                  <div className="draft-value">
+                    {transactionDraft.categoryName}
+                    {autoFilledFields.find(f => f.field === 'categoryId') && (
+                      <Badge variant="secondary" className="auto-filled-badge">Tự động</Badge>
+                    )}
+                  </div>
+                ) : (
+                  <Select
+                    value={transactionDraft.categoryId || ''}
+                    onValueChange={(value) => {
+                      const category = categories.find(c => c.id === value);
+                      if (isTransaction && transactionDraft) {
+                        setDraft({
+                          ...transactionDraft,
+                          categoryId: value,
+                          categoryName: category?.name,
+                        } as TransactionDraft);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn danh mục" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories
+                        .filter(cat => !cat.isSystem || transactionDraft.type === 'EXPENSE' || transactionDraft.type === 'INCOME')
+                        .map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
-            ) : (
-              <Select
-                value={transactionDraft.accountId || ''}
-                onValueChange={(value) => {
-                  const account = accounts.find(a => a.id === value);
-                  if (isTransaction && transactionDraft) {
-                    setDraft({
-                      ...transactionDraft,
-                      accountId: value,
-                      accountName: account?.name,
-                    } as TransactionDraft);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn tài khoản" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
+
+              {/* Account */}
+              <div className="draft-field">
+                <Label>Tài khoản {needConfirmFields.includes('accountId') && <span className="required">*</span>}</Label>
+                {transactionDraft.accountId && transactionDraft.accountName ? (
+                  <div className="draft-value">
+                    {transactionDraft.accountName}
+                    {autoFilledFields.find(f => f.field === 'accountId') && (
+                      <Badge variant="secondary" className="auto-filled-badge">Tự động</Badge>
+                    )}
+                  </div>
+                ) : (
+                  <Select
+                    value={transactionDraft.accountId || ''}
+                    onValueChange={(value) => {
+                      const account = accounts.find(a => a.id === value);
+                      if (isTransaction && transactionDraft) {
+                        setDraft({
+                          ...transactionDraft,
+                          accountId: value,
+                          accountName: account?.name,
+                        } as TransactionDraft);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn tài khoản" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Note */}
           <div className="draft-field">

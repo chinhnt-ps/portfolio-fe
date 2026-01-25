@@ -71,6 +71,7 @@ export const Accounts = () => {
         type: account.type,
         currency: account.currency,
         openingBalance: account.openingBalance,
+        creditLimit: account.creditLimit ?? null,
         note: account.note || '',
       });
     } else {
@@ -80,6 +81,7 @@ export const Accounts = () => {
         type: 'CASH',
         currency: 'VND',
         openingBalance: 0,
+        creditLimit: null,
         note: '',
       });
     }
@@ -94,6 +96,7 @@ export const Accounts = () => {
       type: 'CASH',
       currency: 'VND',
       openingBalance: 0,
+      creditLimit: null,
       note: '',
     });
   };
@@ -144,9 +147,16 @@ export const Accounts = () => {
       CASH: 'Tiền mặt',
       BANK: 'Ngân hàng',
       E_WALLET: 'Ví điện tử',
+      SAVINGS: 'Tiết kiệm',
+      INVESTMENT: 'Đầu tư',
+      POSTPAID: 'Trả sau',
       OTHER: 'Khác',
     };
     return labels[type] || type;
+  };
+
+  const isPostpaid = (account: Account): boolean => {
+    return account.type === 'POSTPAID';
   };
 
   if (isLoading) {
@@ -189,16 +199,34 @@ export const Accounts = () => {
           {accounts.map((account) => (
             <Card 
               key={account.id} 
-              className="account-card"
+              className={`account-card ${isPostpaid(account) ? 'account-card--postpaid' : ''}`}
               onClick={() => handleOpenModal(account)}
             >
               <div className="account-header">
                 <h3 className="account-name">{account.name}</h3>
-                <span className="account-type">{getTypeLabel(account.type)}</span>
+                <span className={`account-type ${isPostpaid(account) ? 'account-type--postpaid' : ''}`}>
+                  {getTypeLabel(account.type)}
+                </span>
               </div>
-              <div className="account-balance">
-                {formatCurrency(account.currentBalance ?? account.openingBalance ?? 0, account.currency)}
-              </div>
+              {isPostpaid(account) ? (
+                <>
+                  <div className="account-balance account-balance--debt">
+                    <span className="balance-label">Dư nợ:</span>
+                    {formatCurrency(account.currentDebt ?? 0, account.currency)}
+                  </div>
+                  {account.creditLimit != null && (
+                    <div className="account-limit">
+                      <span>Hạn mức còn lại: </span>
+                      {formatCurrency(account.availableLimit ?? 0, account.currency)}
+                      <span className="limit-total"> / {formatCurrency(account.creditLimit, account.currency)}</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="account-balance">
+                  {formatCurrency(account.currentBalance ?? account.openingBalance ?? 0, account.currency)}
+                </div>
+              )}
               <div className="account-details">
                 <div>Tiền tệ: {account.currency}</div>
                 {account.note && <div>{account.note}</div>}
@@ -264,6 +292,9 @@ export const Accounts = () => {
                   <SelectItem value="CASH">Tiền mặt</SelectItem>
                   <SelectItem value="BANK">Ngân hàng</SelectItem>
                   <SelectItem value="E_WALLET">Ví điện tử</SelectItem>
+                  <SelectItem value="SAVINGS">Tiết kiệm</SelectItem>
+                  <SelectItem value="INVESTMENT">Đầu tư</SelectItem>
+                  <SelectItem value="POSTPAID">Trả sau</SelectItem>
                   <SelectItem value="OTHER">Khác</SelectItem>
                 </SelectContent>
               </Select>
@@ -287,7 +318,7 @@ export const Accounts = () => {
             </div>
 
             <div className="form-group">
-              <Label className="label">Số dư ban đầu</Label>
+              <Label className="label">{formData.type === 'POSTPAID' ? 'Dư nợ ban đầu' : 'Số dư ban đầu'}</Label>
               <Input
                 className="input"
                 type="number"
@@ -296,6 +327,23 @@ export const Accounts = () => {
                 onChange={(e) => setFormData({ ...formData, openingBalance: parseFloat(e.target.value) || 0 })}
               />
             </div>
+
+            {formData.type === 'POSTPAID' && (
+              <div className="form-group">
+                <Label className="label">Hạn mức (để trống = không giới hạn)</Label>
+                <Input
+                  className="input"
+                  type="number"
+                  step="0.01"
+                  value={formData.creditLimit ?? ''}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    creditLimit: e.target.value ? parseFloat(e.target.value) : null 
+                  })}
+                  placeholder="Ví dụ: 10000000"
+                />
+              </div>
+            )}
 
             <div className="form-group">
               <Label className="label">Ghi chú</Label>
@@ -460,6 +508,16 @@ const AccountsWrapper = styled.div`
         }
       }
 
+      &--postpaid {
+        &::before {
+          background: linear-gradient(90deg, ${({ theme }) => theme.colors.error || '#ef4444'}, ${({ theme }) => theme.colors.error || '#ef4444'}80);
+        }
+
+        &:hover::before {
+          opacity: 1;
+        }
+      }
+
       @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
         padding: ${({ theme }) => theme.spacing[8]};
       }
@@ -497,6 +555,36 @@ const AccountsWrapper = styled.div`
         font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
         color: ${({ theme }) => theme.colors.text.primary};
         margin-bottom: ${({ theme }) => theme.spacing[2]};
+
+        &--debt {
+          color: ${({ theme }) => theme.colors.error || '#ef4444'};
+
+          .balance-label {
+            font-size: ${({ theme }) => theme.typography.fontSize.sm};
+            font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+            color: ${({ theme }) => theme.colors.text.secondary};
+            margin-right: ${({ theme }) => theme.spacing[2]};
+          }
+        }
+      }
+
+      .account-limit {
+        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        color: ${({ theme }) => theme.colors.text.secondary};
+        margin-bottom: ${({ theme }) => theme.spacing[2]};
+
+        .limit-total {
+          color: ${({ theme }) => theme.colors.text.muted || theme.colors.text.secondary};
+          opacity: 0.7;
+        }
+      }
+
+      .account-type--postpaid {
+        background: ${({ theme }) => 
+          theme.colors.background === '#0a0a0a' 
+            ? 'rgba(239, 68, 68, 0.2)' 
+            : 'rgba(239, 68, 68, 0.1)'};
+        color: ${({ theme }) => theme.colors.error || '#ef4444'};
       }
 
       .account-details {

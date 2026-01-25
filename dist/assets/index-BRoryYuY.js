@@ -1,2 +1,0 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/App-CvRBKoeE.js","assets/index-CVIT1BGV.js","assets/index-Dgse49qv.css"])))=>i.map(i=>d[i]);
-import{j as e,r as t,_ as r}from"./index-CVIT1BGV.js";const s=t.lazy(()=>r(()=>import("./App-CvRBKoeE.js"),__vite__mapDeps([0,1,2]))),a=()=>e.jsx("div",{style:{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontSize:"18px",color:"#666"},children:"Loading Wallet App..."}),n=()=>e.jsx(t.Suspense,{fallback:e.jsx(a,{}),children:e.jsx(s,{})});export{n as default};

@@ -117,6 +117,12 @@ const createApiClient = (): AxiosInstance => {
 
             if (response.data.success && response.data.data) {
               const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+              if (!accessToken || !newRefreshToken) {
+                tokenStorage.clearTokens();
+                window.location.hash = '#login';
+                return Promise.reject(error);
+              }
+
               tokenStorage.setAccessToken(accessToken);
               tokenStorage.setRefreshToken(newRefreshToken);
 

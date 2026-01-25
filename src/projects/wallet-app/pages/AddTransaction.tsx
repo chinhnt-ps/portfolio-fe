@@ -81,13 +81,14 @@ export const AddTransaction = () => {
 
   // Set default account when accounts are loaded
   useEffect(() => {
-    if (accounts.length > 0 && !formData.accountId) {
+    // Chỉ set default account cho các type cần accountId
+    if ((formData.type === 'EXPENSE' || formData.type === 'INCOME') && accounts.length > 0 && !formData.accountId) {
       setFormData((prev) => ({
         ...prev,
         accountId: accounts[0].id,
       }));
     }
-  }, [accounts, formData.accountId]);
+  }, [accounts, formData.accountId, formData.type]);
 
   useEffect(() => {
     // Reset transfer fields when type changes
@@ -96,6 +97,13 @@ export const AddTransaction = () => {
         ...prev,
         fromAccountId: undefined,
         toAccountId: undefined,
+      }));
+    } else {
+      // TRANSFER không dùng accountId/categoryId
+      setFormData((prev) => ({
+        ...prev,
+        accountId: '',
+        categoryId: undefined,
       }));
     }
 
@@ -154,11 +162,48 @@ export const AddTransaction = () => {
         ? convertDateTimeLocalToISO(formData.occurredAt)
         : new Date().toISOString();
 
-      await walletApi.transactions.create({
-        ...formData,
-        accountId: formData.accountId || undefined, // Empty string -> undefined
-        occurredAt,
-      });
+      // Build payload theo từng loại để tránh gửi dư field (đặc biệt TRANSFER)
+      if (formData.type === 'TRANSFER') {
+        await walletApi.transactions.create({
+          type: 'TRANSFER',
+          amount: formData.amount,
+          currency: formData.currency,
+          occurredAt,
+          fromAccountId: formData.fromAccountId,
+          toAccountId: formData.toAccountId,
+          note: formData.note,
+        });
+      } else if (formData.type === 'RECEIVABLE_SETTLEMENT') {
+        await walletApi.transactions.create({
+          type: 'RECEIVABLE_SETTLEMENT',
+          amount: formData.amount,
+          currency: formData.currency,
+          occurredAt,
+          accountId: formData.accountId || undefined,
+          receivableId: formData.receivableId,
+          note: formData.note,
+        });
+      } else if (formData.type === 'LIABILITY_SETTLEMENT') {
+        await walletApi.transactions.create({
+          type: 'LIABILITY_SETTLEMENT',
+          amount: formData.amount,
+          currency: formData.currency,
+          occurredAt,
+          accountId: formData.accountId || undefined,
+          liabilityId: formData.liabilityId,
+          note: formData.note,
+        });
+      } else {
+        await walletApi.transactions.create({
+          type: formData.type,
+          amount: formData.amount,
+          currency: formData.currency,
+          occurredAt,
+          accountId: formData.accountId || undefined,
+          categoryId: formData.categoryId,
+          note: formData.note,
+        });
+      }
 
       // Navigate back to transactions list
       navigate('transactions');

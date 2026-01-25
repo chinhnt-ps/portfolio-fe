@@ -81,7 +81,7 @@ export const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await walletApi.auth.register({
+      await walletApi.auth.register({
         email,
         password,
         ...(fullName && { fullName }),

@@ -65,7 +65,7 @@ export interface VerifyEmailRequest {
 /**
  * Account/Wallet Types
  */
-export type AccountType = 'CASH' | 'BANK' | 'E_WALLET' | 'OTHER';
+export type AccountType = 'CASH' | 'BANK' | 'E_WALLET' | 'SAVINGS' | 'INVESTMENT' | 'POSTPAID' | 'OTHER';
 
 export interface Account {
   id: string;
@@ -74,16 +74,40 @@ export interface Account {
   currency: string;
   openingBalance: number;
   currentBalance: number;
+  
+  // POSTPAID specific fields
+  creditLimit?: number | null;     // Hạn mức (null = unlimited)
+  currentDebt?: number | null;     // Dư nợ hiện tại (chỉ POSTPAID)
+  availableLimit?: number | null;  // Hạn mức còn lại (chỉ POSTPAID)
+  
   note?: string;
   createdAt: string;
   updatedAt: string;
 }
+
+/**
+ * Helper function to check if account is POSTPAID
+ */
+export const isPostpaidAccount = (account: Account): boolean => {
+  return account.type === 'POSTPAID';
+};
+
+/**
+ * Get display balance for account (currentBalance for normal, currentDebt for POSTPAID)
+ */
+export const getAccountDisplayBalance = (account: Account): number => {
+  if (account.type === 'POSTPAID') {
+    return account.currentDebt ?? 0;
+  }
+  return account.currentBalance;
+};
 
 export interface CreateAccountRequest {
   name: string;
   type: AccountType;
   currency: string;
   openingBalance: number;
+  creditLimit?: number | null;  // Cho POSTPAID
   note?: string;
 }
 
@@ -91,6 +115,7 @@ export interface UpdateAccountRequest {
   name?: string;
   type?: AccountType;
   currency?: string;
+  creditLimit?: number | null;  // Cho POSTPAID
   note?: string;
 }
 
@@ -343,7 +368,6 @@ export interface UpdateLiabilityRequest {
   occurredAt?: string;
   dueAt?: string;
   accountId?: string; // Tài khoản trả tiền (optional)
-  note?: string;
   note?: string;
 }
 

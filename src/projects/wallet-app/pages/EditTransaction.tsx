@@ -110,6 +110,18 @@ export const EditTransaction = () => {
     try {
       if (!transaction) return;
 
+      // Validate TRANSFER
+      if ((formData.type || transaction.type) === 'TRANSFER') {
+        const fromId = formData.fromAccountId || transaction.fromAccountId;
+        const toId = formData.toAccountId || transaction.toAccountId;
+        if (!fromId || !toId) {
+          throw new Error('Vui lòng chọn tài khoản nguồn và đích');
+        }
+        if (fromId === toId) {
+          throw new Error('Tài khoản nguồn và đích phải khác nhau');
+        }
+      }
+
       // Convert datetime-local format to ISO string if occurredAt is present
       const updateData: UpdateTransactionRequest = {
         ...formData,
@@ -117,6 +129,12 @@ export const EditTransaction = () => {
           ? convertDateTimeLocalToISO(formData.occurredAt)
           : undefined,
       };
+
+      // Nếu là TRANSFER, không gửi accountId/categoryId để tránh lệch contract
+      if ((formData.type || transaction.type) === 'TRANSFER') {
+        updateData.accountId = undefined;
+        updateData.categoryId = undefined;
+      }
 
       await walletApi.transactions.update(transaction.id, updateData);
       navigate('transactions');

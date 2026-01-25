@@ -16,7 +16,9 @@
 // 'dev' | 'live' | 'localhost'
 type ApiMode = 'dev' | 'live' | 'localhost';
 // Ưu tiên env cho test/e2e: VITE_API_MODE=localhost|dev|live
-const MODE: ApiMode = (import.meta.env?.VITE_API_MODE as ApiMode) || 'live';
+const MODE: ApiMode =
+  (import.meta.env?.VITE_API_MODE as ApiMode) ||
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'localhost' : 'live');
 
 // ============================================
 // Environment Configuration Functions

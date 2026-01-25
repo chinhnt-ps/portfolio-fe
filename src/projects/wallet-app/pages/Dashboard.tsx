@@ -5,6 +5,7 @@ import { useWalletAppRouter } from '../App';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
 import type { DashboardReport, Transaction, NLPResponse, ConfirmDraftData, TransactionDraft, ReceivableDraft, LiabilityDraft, SettlementDraft } from '../api/types';
+import { isPostpaidAccount } from '../api/types';
 import { Icon } from '../components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,8 @@ import { fetchCategories } from '@/store/slices/categoriesSlice';
  */
 interface FinancialOverview {
   totalAssets: number; // Tổng tài sản = accounts + receivables - liabilities
-  currentCash: number; // Tiền hiện có = tổng accounts
+  currentCash: number; // Tiền hiện có = tổng accounts (không gồm Tiết kiệm/Đầu tư)
+  totalSavingsInvestment: number; // Tổng tiết kiệm/Đầu tư = tổng accounts (SAVINGS + INVESTMENT)
   totalReceivables: number; // Khoản cho vay = tổng receivables remainingAmount
   totalLiabilities: number; // Khoản nợ = tổng liabilities remainingAmount
 }
@@ -102,20 +104,37 @@ export const Dashboard = () => {
         ]);
 
         // Tính toán metrics - sử dụng accounts từ Redux
-        const totalAccounts = accounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
+        // Loại bỏ POSTPAID khỏi tổng tài sản (POSTPAID không có số dư thực)
+        const regularAccounts = accounts.filter((acc) => !isPostpaidAccount(acc));
+        const postpaidAccounts = accounts.filter((acc) => isPostpaidAccount(acc));
+        
+        const totalAccountsAll = regularAccounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
+        const totalAccountsCurrentCash = regularAccounts
+          .filter((acc) => acc.type !== 'SAVINGS' && acc.type !== 'INVESTMENT')
+          .reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
+        const totalSavingsInvestment = regularAccounts
+          .filter((acc) => acc.type === 'SAVINGS' || acc.type === 'INVESTMENT')
+          .reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
         const totalReceivables = receivablesData.content.reduce(
           (sum, rec) => sum + (rec.remainingAmount || 0),
           0
         );
-        const totalLiabilities = liabilitiesData.content.reduce(
+        // Tổng nợ = liabilities + debt từ POSTPAID accounts
+        const liabilitiesDebt = liabilitiesData.content.reduce(
           (sum, liab) => sum + (liab.remainingAmount || 0),
           0
         );
-        const totalAssets = totalAccounts + totalReceivables - totalLiabilities;
+        const postpaidDebt = postpaidAccounts.reduce(
+          (sum, acc) => sum + (acc.currentDebt || 0),
+          0
+        );
+        const totalLiabilities = liabilitiesDebt + postpaidDebt;
+        const totalAssets = totalAccountsAll + totalReceivables - totalLiabilities;
 
         setFinancialOverview({
           totalAssets,
-          currentCash: totalAccounts,
+          currentCash: totalAccountsCurrentCash,
+          totalSavingsInvestment,
           totalReceivables,
           totalLiabilities,
         });
@@ -321,24 +340,44 @@ export const Dashboard = () => {
       // Handle different draft types
       if (confirmData.draftType === 'TRANSACTION') {
         const transactionDraft = draft as TransactionDraft;
-        
-        if (!transactionDraft.amount || !transactionDraft.accountId) {
-          throw new Error('Thiếu thông tin bắt buộc: số tiền và tài khoản');
+
+        if (!transactionDraft.amount) {
+          throw new Error('Thiếu thông tin bắt buộc: số tiền');
         }
-        
-        const transactionData: import('../api/types').CreateTransactionRequest = {
-          type: transactionDraft.type,
-          amount: transactionDraft.amount,
-          currency: transactionDraft.currency || 'VND',
-          occurredAt: removeTimezoneFromDate(transactionDraft.occurredAt),
-          categoryId: transactionDraft.categoryId,
-          accountId: transactionDraft.accountId as string,
-          fromAccountId: transactionDraft.fromAccountId,
-          toAccountId: transactionDraft.toAccountId,
-          note: transactionDraft.note,
-        };
-        
-        await walletApi.transactions.create(transactionData);
+
+        const occurredAt = removeTimezoneFromDate(transactionDraft.occurredAt);
+
+        if (transactionDraft.type === 'TRANSFER') {
+          if (!transactionDraft.fromAccountId || !transactionDraft.toAccountId) {
+            throw new Error('Thiếu thông tin bắt buộc: tài khoản nguồn và đích');
+          }
+          if (transactionDraft.fromAccountId === transactionDraft.toAccountId) {
+            throw new Error('Tài khoản nguồn và đích phải khác nhau');
+          }
+          await walletApi.transactions.create({
+            type: 'TRANSFER',
+            amount: transactionDraft.amount,
+            currency: transactionDraft.currency || 'VND',
+            occurredAt,
+            fromAccountId: transactionDraft.fromAccountId,
+            toAccountId: transactionDraft.toAccountId,
+            note: transactionDraft.note,
+          });
+        } else {
+          if (!transactionDraft.accountId || !transactionDraft.categoryId) {
+            throw new Error('Thiếu thông tin bắt buộc: tài khoản và danh mục');
+          }
+          await walletApi.transactions.create({
+            type: transactionDraft.type,
+            amount: transactionDraft.amount,
+            currency: transactionDraft.currency || 'VND',
+            occurredAt,
+            categoryId: transactionDraft.categoryId,
+            accountId: transactionDraft.accountId,
+            note: transactionDraft.note,
+          });
+        }
+
         toast({
           title: 'Thành công',
           description: 'Đã tạo giao dịch thành công',
@@ -465,7 +504,7 @@ export const Dashboard = () => {
       setError(errorMessage);
       throw err;
     }
-  }, [dateFilter, dateRange, nlpResponse, toast]);
+  }, [accountsLoading, categoriesLoading, dateFilter, dateRange, dispatch, nlpResponse, toast]);
 
   return (
     <DashboardWrapper ref={containerRef} className="dashboard-wrapper">
@@ -479,8 +518,13 @@ export const Dashboard = () => {
         </div>
         {isLoadingFinancial ? (
           <div className="financial-overview-grid">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i}>
+            {[...Array(5)].map((_, i) => (
+              <Card
+                key={i}
+                className={`financial-card ${
+                  i <= 1 ? 'financial-card--half' : 'financial-card--third'
+                }`}
+              >
                 <CardContent className="p-6">
                   <Skeleton className="h-4 w-24 mb-2" />
                   <Skeleton className="h-8 w-32" />
@@ -490,7 +534,7 @@ export const Dashboard = () => {
           </div>
         ) : (
           <div className="financial-overview-grid">
-            <Card>
+            <Card className="financial-card financial-card--half">
               <CardContent className="p-6">
                 <div className="stat-label">{t('wallet.dashboard.totalAssets') || 'Tổng tài sản'}</div>
                 <div className="stat-value">
@@ -499,7 +543,7 @@ export const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="financial-card financial-card--half">
               <CardContent className="p-6">
                 <div className="stat-label">{t('wallet.dashboard.currentCash') || 'Tiền hiện có'}</div>
                 <div className="stat-value stat-value--positive">
@@ -508,7 +552,16 @@ export const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="financial-card financial-card--third">
+              <CardContent className="p-6">
+                <div className="stat-label">{t('wallet.dashboard.totalSavingsInvestment') || 'Tiết kiệm/Đầu tư'}</div>
+                <div className="stat-value stat-value--positive">
+                  {financialOverview ? formatCurrency(financialOverview.totalSavingsInvestment, 'VND') : '0 ₫'}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="financial-card financial-card--third">
               <CardContent className="p-6">
                 <div className="stat-label">{t('wallet.dashboard.totalReceivables') || 'Khoản cho vay'}</div>
                 <div className="stat-value stat-value--positive">
@@ -517,7 +570,7 @@ export const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="financial-card financial-card--third">
               <CardContent className="p-6">
                 <div className="stat-label">{t('wallet.dashboard.totalLiabilities') || 'Khoản nợ'}</div>
                 <div className="stat-value stat-value--negative">
@@ -802,7 +855,20 @@ const DashboardWrapper = styled.div`
     }
 
     @media (min-width: ${({ theme }) => theme.breakpoints.xl}) {
-      grid-template-columns: repeat(4, 1fr);
+      /* 6 columns to support 2 items (1/2) + 3 items (1/3) in 2 rows */
+      grid-template-columns: repeat(6, 1fr);
+    }
+
+    @media (min-width: ${({ theme }) => theme.breakpoints.xl}) {
+      .financial-card {
+        &--half {
+          grid-column: span 3;
+        }
+
+        &--third {
+          grid-column: span 2;
+        }
+      }
     }
 
     .stat-label {
