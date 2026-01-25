@@ -215,7 +215,7 @@ const SidebarMenuWrapper = styled.aside`
     }
 
     .menu-section {
-      margin-top: ${({ theme }) => theme.spacing[6]};
+      margin-top: ${({ theme }) => theme.spacing[3]};
       margin-bottom: ${({ theme }) => theme.spacing[3]};
       padding: 0 ${({ theme }) => theme.spacing[4]};
       font-size: ${({ theme }) => theme.typography.fontSize.xs};
@@ -223,10 +223,6 @@ const SidebarMenuWrapper = styled.aside`
       color: ${({ theme }) => theme.colors.text.muted};
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      
-      &:first-child {
-        margin-top: 0;
-      }
     }
   }
 `;

@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { walletApi } from '../api/walletApi';
 import { handleApiError } from '../api/walletApi';
+import { useAccounts, useCategories } from '../api/hooks';
 import type { UpdateTransactionRequest, Transaction } from '../api/types';
 import { Icon } from './icons';
 import { AmountInput } from './AmountInput';
-import { useAppSelector } from '@/store/hooks';
 import { Textarea } from '@/components/ui/textarea';
 import { formatForDateTimeLocal, convertDateTimeLocalToISO } from '../utils/dateUtils';
 
@@ -32,9 +32,9 @@ export const EditTransactionModal = ({
 }: EditTransactionModalProps) => {
   const { t } = useTranslation();
   
-  // Redux state
-  const accounts = useAppSelector((state) => state.walletAccounts.items);
-  const categories = useAppSelector((state) => state.categories.items);
+  // SWR hooks for data
+  const { accounts } = useAccounts();
+  const { categories } = useCategories();
   
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [isLoading, setIsLoading] = useState(false);

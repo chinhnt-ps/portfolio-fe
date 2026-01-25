@@ -45,6 +45,8 @@ import {
   TrendingUp,
   PlusCircle,
   Search,
+  RefreshCw,
+  Inbox,
   LucideIcon,
 } from 'lucide-react';
 
@@ -94,7 +96,14 @@ export const Icons = {
   Gift: Gift,
   TrendingUp: TrendingUp,
   PlusCircle: PlusCircle,
+  Plus: Plus,
+  RefreshCw: RefreshCw,
+  Inbox: Inbox,
+  AlertCircle: AlertCircle,
 };
+
+// Export IconName type for type-safe icon usage
+export type IconName = keyof typeof Icons;
 
 /**
  * Get icon component by name (for dynamic icon loading)
@@ -106,16 +115,21 @@ export const getIconByName = (iconName: string): LucideIcon | null => {
 
 /**
  * Icon wrapper component với consistent styling
+ * Hỗ trợ cả `icon` và `name` prop để backward compatible
  */
 interface IconProps {
-  icon: keyof typeof Icons;
+  icon?: IconName;
+  name?: IconName;
   size?: number;
   className?: string;
   color?: string;
 }
 
-export const Icon = ({ icon, size = 20, className = '', color }: IconProps) => {
-  const IconComponent = Icons[icon];
+export const Icon = ({ icon, name, size = 20, className = '', color }: IconProps) => {
+  const iconKey = name || icon;
+  if (!iconKey) return null;
+  
+  const IconComponent = Icons[iconKey];
   if (!IconComponent) return null;
 
   return (

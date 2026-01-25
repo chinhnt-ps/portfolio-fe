@@ -1,20 +1,22 @@
 import { useState, useEffect, createContext, useContext } from 'react';
+import { SWRConfig } from 'swr';
 import { WalletAppLayout } from './components/WalletAppLayout';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { VerifyEmail } from './pages/VerifyEmail';
-import { Dashboard } from './pages/Dashboard';
-import { Transactions } from './pages/Transactions';
-import { AddTransaction } from './pages/AddTransaction';
-import { EditTransaction } from './pages/EditTransaction';
-import { Accounts } from './pages/Accounts';
-import { Categories } from './pages/Categories';
-import { Budgets } from './pages/Budgets';
-import { Receivables } from './pages/Receivables';
-import { Liabilities } from './pages/Liabilities';
-import { Assets } from './pages/Assets';
-import { Settings } from './pages/Settings';
+import { Login } from './pages/login';
+import { Register } from './pages/register';
+import { VerifyEmail } from './pages/verify-email';
+import { Dashboard } from './pages/dashboard';
+import { Transactions } from './pages/transactions';
+import { AddTransaction } from './pages/add-transaction';
+import { EditTransaction } from './pages/edit-transaction';
+import { Accounts } from './pages/accounts';
+import { Categories } from './pages/categories';
+import { Budgets } from './pages/budgets';
+import { Receivables } from './pages/receivables';
+import { Liabilities } from './pages/liabilities';
+import { Assets } from './pages/assets';
+import { Settings } from './pages/settings';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { swrConfig } from './api/hooks';
 import { Toaster } from '@/components/ui/toaster';
 
 // Wallet App Route Types
@@ -213,13 +215,15 @@ const WalletAppRouter = () => {
 };
 
 /**
- * Wallet App với Auth Provider
+ * Wallet App với Auth Provider và SWR
  */
 const WalletAppWithAuth = () => {
   return (
-    <AuthProvider>
-      <WalletAppRouter />
-    </AuthProvider>
+    <SWRConfig value={swrConfig}>
+      <AuthProvider>
+        <WalletAppRouter />
+      </AuthProvider>
+    </SWRConfig>
   );
 };
 
