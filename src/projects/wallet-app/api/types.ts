@@ -410,7 +410,14 @@ export interface UpdateAssetRequest {
  * NLP Types
  */
 export type NLPResponseType = 'CONFIRM_DRAFT' | 'SELECT_OPTION' | 'QUERY_RESULT' | 'NEED_MORE_INFO' | 'ERROR';
-export type NLPIntent = 'CREATE_TRANSACTION' | 'CREATE_RECEIVABLE' | 'CREATE_LIABILITY' | 'CREATE_SETTLEMENT' | 'QUERY_DATA' | 'UNKNOWN';
+export type NLPIntent =
+  | 'CREATE_TRANSACTION'
+  | 'CREATE_RECEIVABLE'
+  | 'CREATE_LIABILITY'
+  | 'CREATE_SETTLEMENT'
+  | 'ADJUST_BALANCE'
+  | 'QUERY_DATA'
+  | 'UNKNOWN';
 
 export interface ParseTransactionRequest {
   text: string;
@@ -427,8 +434,8 @@ export interface NLPResponse {
 }
 
 export interface ConfirmDraftData {
-  draftType: 'TRANSACTION' | 'RECEIVABLE' | 'LIABILITY' | 'SETTLEMENT';
-  draft: TransactionDraft | ReceivableDraft | LiabilityDraft | SettlementDraft;
+  draftType: 'TRANSACTION' | 'RECEIVABLE' | 'LIABILITY' | 'SETTLEMENT' | 'BALANCE_ADJUSTMENT';
+  draft: TransactionDraft | ReceivableDraft | LiabilityDraft | SettlementDraft | BalanceAdjustmentDraft;
   needConfirmFields: string[];
   autoFilledFields: Array<{
     field: string;
@@ -481,6 +488,13 @@ export interface SettlementDraft {
   accountId?: string;
   accountName?: string;
   settledAt: string;
+  note?: string;
+}
+
+export interface BalanceAdjustmentDraft {
+  accountId?: string;
+  accountName?: string;
+  targetBalance: number;
   note?: string;
 }
 

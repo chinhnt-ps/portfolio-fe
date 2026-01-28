@@ -11,6 +11,7 @@ interface AccountCardProps {
   onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onAdjustBalance?: () => void;
 }
 
 const getTypeLabel = (type: AccountType): string => {
@@ -35,7 +36,7 @@ const isPostpaid = (account: Account): boolean => {
  * 
  * Card hiển thị thông tin một tài khoản
  */
-export const AccountCard = ({ account, onClick, onEdit, onDelete }: AccountCardProps) => {
+export const AccountCard = ({ account, onClick, onEdit, onDelete, onAdjustBalance }: AccountCardProps) => {
   return (
     <AccountCardWrapper
       className={`account-card ${isPostpaid(account) ? 'account-card--postpaid' : ''}`}
@@ -74,6 +75,18 @@ export const AccountCard = ({ account, onClick, onEdit, onDelete }: AccountCardP
       </div>
       
       <div className="account-actions" onClick={(e) => e.stopPropagation()}>
+        {!isPostpaid(account) && onAdjustBalance && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="adjust-button"
+            onClick={onAdjustBalance}
+            title="Điều chỉnh số dư"
+          >
+            <Icon icon="Balance" size={14} color="currentColor" />
+            <span>Điều chỉnh số dư</span>
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"
@@ -189,6 +202,17 @@ const AccountCardWrapper = styled(Card)`
   .account-actions {
     display: flex;
     gap: ${({ theme }) => theme.spacing[2]};
+    align-items: center;
+    justify-content: space-between;
+
+    .adjust-button {
+      display: inline-flex;
+      align-items: center;
+      gap: ${({ theme }) => theme.spacing[1]};
+      border-radius: ${({ theme }) => theme.borderRadius.lg};
+      font-size: ${({ theme }) => theme.typography.fontSize.xs};
+      padding-inline: ${({ theme }) => theme.spacing[3]};
+    }
 
     .icon-button {
       width: 36px;

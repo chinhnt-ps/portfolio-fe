@@ -82,6 +82,18 @@ export function useAccounts() {
     },
 
     /**
+     * Adjust account balance to match actual balance
+     */
+    async adjustAccountBalance(id: string, actualBalance: number, note?: string): Promise<Account> {
+      const updated = await accountsApi.adjustBalance(id, actualBalance, note);
+      await mutate();
+      // Điều chỉnh số dư ảnh hưởng đến báo cáo và giao dịch
+      await globalMutate((key) => typeof key === 'string' && key.startsWith(SWR_KEYS.TRANSACTIONS));
+      await globalMutate((key) => typeof key === 'string' && key.startsWith(SWR_KEYS.REPORTS));
+      return updated;
+    },
+
+    /**
      * Get account by ID from cached data
      */
     getAccountById(id: string): Account | undefined {

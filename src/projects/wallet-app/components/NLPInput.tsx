@@ -68,7 +68,10 @@ export const NLPInput = ({ onParse, isLoading = false, placeholder, disabled = f
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder || 'Nhập lệnh... (ví dụ: "ăn bún 50k", "cho Nam vay 2tr")'}
+          placeholder={
+            placeholder ||
+            'Nhập lệnh... (ví dụ: "ăn bún 50k", "cho Nam vay 2tr", "điều chỉnh số dư ví tiền mặt về 2 triệu")'
+          }
           disabled={disabled || isLoading}
         />
         <Button

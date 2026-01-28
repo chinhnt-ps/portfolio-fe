@@ -12,13 +12,14 @@ import { NLPInput } from '../../components/NLPInput';
 import { ConfirmDraftDialog } from '../../components/ConfirmDraftDialog';
 import { useToast } from '@/hooks/use-toast';
 import { removeTimezoneFromDate } from '../../utils/formatters';
-import type { 
-  NLPResponse, 
-  ConfirmDraftData, 
-  TransactionDraft, 
-  ReceivableDraft, 
-  LiabilityDraft, 
-  SettlementDraft 
+import type {
+  NLPResponse,
+  ConfirmDraftData,
+  TransactionDraft,
+  ReceivableDraft,
+  LiabilityDraft,
+  SettlementDraft,
+  BalanceAdjustmentDraft,
 } from '../../api/types';
 
 interface QuickAddTransactionProps {
@@ -36,7 +37,7 @@ export const QuickAddTransaction = ({ onTransactionCreated }: QuickAddTransactio
   const { toast } = useToast();
   
   // SWR hooks for data needed in draft dialog
-  const { accounts, refresh: refreshAccounts } = useAccounts();
+  const { accounts, refresh: refreshAccounts, adjustAccountBalance } = useAccounts();
   const { categories, refresh: refreshCategories } = useCategories();
   
   // NLP state
@@ -189,6 +190,26 @@ export const QuickAddTransaction = ({ onTransactionCreated }: QuickAddTransactio
         toast({
           title: 'Thành công',
           description: 'Đã thanh toán thành công',
+        });
+      } else if (confirmData.draftType === 'BALANCE_ADJUSTMENT') {
+        const balanceDraft = draft as BalanceAdjustmentDraft;
+
+        if (!balanceDraft.accountId) {
+          throw new Error('Thiếu thông tin bắt buộc: tài khoản cần điều chỉnh');
+        }
+        if (balanceDraft.targetBalance == null || balanceDraft.targetBalance < 0) {
+          throw new Error('Thiếu hoặc sai số dư thực tế');
+        }
+
+        await adjustAccountBalance(
+          balanceDraft.accountId,
+          balanceDraft.targetBalance,
+          balanceDraft.note
+        );
+
+        toast({
+          title: 'Thành công',
+          description: 'Đã điều chỉnh số dư tài khoản',
         });
       }
       

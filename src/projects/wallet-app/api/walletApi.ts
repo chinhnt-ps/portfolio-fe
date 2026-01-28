@@ -31,6 +31,7 @@ import type {
   NLPResponse,
   Settlement,
   CreateSettlementRequest,
+  Account,
 } from './types';
 
 /**
@@ -385,6 +386,25 @@ export const accountsApi = {
     if (!response.data.success) {
       throw new Error(response.data.message || 'Xóa tài khoản thất bại');
     }
+  },
+
+  /**
+   * Adjust account balance to match actual balance
+   */
+  adjustBalance: async (id: string, actualBalance: number, note?: string): Promise<Account> => {
+    const response = await apiClient.post<ApiResponse<Account>>(
+      `/wallet/accounts/${id}/adjust-balance`,
+      {
+        actualBalance,
+        note,
+      }
+    );
+
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+
+    throw new Error(response.data.message || 'Điều chỉnh số dư thất bại');
   },
 };
 

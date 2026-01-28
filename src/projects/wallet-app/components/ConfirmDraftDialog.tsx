@@ -19,7 +19,16 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Icon } from './icons';
-import type { ConfirmDraftData, Account, Category, TransactionDraft, ReceivableDraft, LiabilityDraft, SettlementDraft } from '../api/types';
+import type {
+  ConfirmDraftData,
+  Account,
+  Category,
+  TransactionDraft,
+  ReceivableDraft,
+  LiabilityDraft,
+  SettlementDraft,
+  BalanceAdjustmentDraft,
+} from '../api/types';
 import styled from 'styled-components';
 
 /**
@@ -169,6 +178,7 @@ export const ConfirmDraftDialog = ({
   const isReceivable = draftData.draftType === 'RECEIVABLE';
   const isLiability = draftData.draftType === 'LIABILITY';
   const isSettlement = draftData.draftType === 'SETTLEMENT';
+  const isBalanceAdjustment = draftData.draftType === 'BALANCE_ADJUSTMENT';
 
   const transactionDraft = isTransaction ? (draft as TransactionDraft) : null;
 
@@ -177,6 +187,8 @@ export const ConfirmDraftDialog = ({
   const liabilityDraft = isLiability ? (draft as LiabilityDraft) : null;
 
   const settlementDraft = isSettlement ? (draft as SettlementDraft) : null;
+
+  const balanceAdjustmentDraft = isBalanceAdjustment ? (draft as BalanceAdjustmentDraft) : null;
 
   const formatCurrency = (amount: number, currency: string = 'VND') => {
     return new Intl.NumberFormat('vi-VN', {
@@ -198,6 +210,8 @@ export const ConfirmDraftDialog = ({
         return 'Xác nhận khoản nợ';
       case 'SETTLEMENT':
         return settlementDraft?.type === 'RECEIVABLE' ? 'Xác nhận nhận tiền trả nợ' : 'Xác nhận trả nợ';
+      case 'BALANCE_ADJUSTMENT':
+        return 'Xác nhận điều chỉnh số dư';
       default:
         return 'Xác nhận';
     }
@@ -224,6 +238,9 @@ export const ConfirmDraftDialog = ({
     if (isSettlement && settlementDraft) {
       return settlementDraft.amount && settlementDraft.accountId && 
              (settlementDraft.receivableId || settlementDraft.liabilityId);
+    }
+    if (isBalanceAdjustment && balanceAdjustmentDraft) {
+      return !!balanceAdjustmentDraft.accountId && balanceAdjustmentDraft.targetBalance >= 0;
     }
     return false;
   };
@@ -770,6 +787,90 @@ export const ConfirmDraftDialog = ({
                     }
                   }}
                   placeholder="Nhập ghi chú (tùy chọn)"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Balance Adjustment Form */}
+          {isBalanceAdjustment && balanceAdjustmentDraft && (
+            <>
+              <div className="draft-field">
+                <Label>Tài khoản {needConfirmFields.includes('accountId') && <span className="required">*</span>}</Label>
+                {balanceAdjustmentDraft.accountId && balanceAdjustmentDraft.accountName ? (
+                  <div className="draft-value">
+                    {balanceAdjustmentDraft.accountName}
+                    {autoFilledFields.find((f) => f.field === 'accountId') && (
+                      <Badge variant="secondary" className="auto-filled-badge">
+                        Tự động
+                      </Badge>
+                    )}
+                  </div>
+                ) : (
+                  <Select
+                    value={balanceAdjustmentDraft.accountId || ''}
+                    onValueChange={(value) => {
+                      const account = accounts.find((a) => a.id === value);
+                      if (isBalanceAdjustment && balanceAdjustmentDraft) {
+                        setDraft({
+                          ...balanceAdjustmentDraft,
+                          accountId: value,
+                          accountName: account?.name,
+                        } as BalanceAdjustmentDraft);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn tài khoản" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
+              <div className="draft-field">
+                <Label>Số dư thực tế sau điều chỉnh <span className="required">*</span></Label>
+                <Input
+                  ref={firstInputRef}
+                  type="number"
+                  min={0}
+                  value={
+                    typeof balanceAdjustmentDraft.targetBalance === 'number'
+                      ? balanceAdjustmentDraft.targetBalance
+                      : ''
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value ? parseFloat(e.target.value) : 0;
+                    if (isBalanceAdjustment && balanceAdjustmentDraft) {
+                      setDraft({
+                        ...balanceAdjustmentDraft,
+                        targetBalance: value,
+                      } as BalanceAdjustmentDraft);
+                    }
+                  }}
+                  placeholder="Nhập số dư thực tế"
+                />
+              </div>
+
+              <div className="draft-field">
+                <Label>Ghi chú</Label>
+                <Input
+                  value={balanceAdjustmentDraft.note || ''}
+                  onChange={(e) => {
+                    if (isBalanceAdjustment && balanceAdjustmentDraft) {
+                      setDraft({
+                        ...balanceAdjustmentDraft,
+                        note: e.target.value,
+                      } as BalanceAdjustmentDraft);
+                    }
+                  }}
+                  placeholder="Nhập lý do điều chỉnh (tùy chọn)"
                 />
               </div>
             </>
