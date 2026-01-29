@@ -138,7 +138,7 @@ const NLPInputWrapper = styled.div`
     align-items: center;
     gap: ${({ theme }) => theme.spacing[2]};
     font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   }
 

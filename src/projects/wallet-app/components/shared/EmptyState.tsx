@@ -73,7 +73,7 @@ const EmptyStateWrapper = styled.div`
   }
 
   .empty-description {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
     margin: 0 0 ${({ theme }) => theme.spacing[6]};
     max-width: 300px;
@@ -88,7 +88,7 @@ const EmptyStateWrapper = styled.div`
     color: white;
     border: none;
     border-radius: ${({ theme }) => theme.borderRadius.lg};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
     cursor: pointer;
     transition: all 0.2s ease;

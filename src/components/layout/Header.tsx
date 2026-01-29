@@ -27,11 +27,12 @@ const Nav = styled.nav`
 `;
 
 const Logo = styled(Link)`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   text-decoration: none;
   transition: color 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
@@ -64,6 +65,7 @@ const NavLink = styled(Link)<{ $isActive: boolean }>`
   };
   transition: color 0.2s ease;
   position: relative;
+  cursor: pointer;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
@@ -94,14 +96,14 @@ const MobileMenuButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: ${({ theme }) => theme.components.iconButtonSize};
+  height: ${({ theme }) => theme.components.iconButtonSize};
   background: transparent;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   color: ${({ theme }) => theme.colors.text.primary};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
 
   &:hover {
     background: ${({ theme }) => theme.colors.hover};

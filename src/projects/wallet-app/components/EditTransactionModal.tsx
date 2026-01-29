@@ -389,7 +389,7 @@ const EditTransactionModalWrapper = styled.div`
 
       .modal-title {
         font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-        font-size: ${({ theme }) => theme.typography.fontSize.xl};
+        font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
         font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
         line-height: ${({ theme }) => theme.typography.lineHeight.tight};
         color: ${({ theme }) => theme.colors.text.primary};
@@ -434,7 +434,7 @@ const EditTransactionModalWrapper = styled.div`
       border: 1px solid ${({ theme }) => theme.colors.error};
       border-radius: ${({ theme }) => theme.borderRadius.md};
       font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-      font-size: ${({ theme }) => theme.typography.fontSize.sm};
+      font-size: ${({ theme }) => theme.typography.fontSize.base};
       font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
       line-height: ${({ theme }) => theme.typography.lineHeight.normal};
       color: ${({ theme }) => theme.colors.error};
@@ -453,7 +453,7 @@ const EditTransactionModalWrapper = styled.div`
 
         .label {
           font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
           line-height: ${({ theme }) => theme.typography.lineHeight.normal};
           color: ${({ theme }) => theme.colors.text.primary};
@@ -466,7 +466,7 @@ const EditTransactionModalWrapper = styled.div`
           border: 1px solid ${({ theme }) => theme.colors.border};
           border-radius: ${({ theme }) => theme.borderRadius.lg};
           font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
           line-height: 1.5;
           color: ${({ theme }) => theme.colors.text.primary};
@@ -496,7 +496,7 @@ const EditTransactionModalWrapper = styled.div`
           border: 1px solid ${({ theme }) => theme.colors.border};
           border-radius: ${({ theme }) => theme.borderRadius.lg};
           font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
           line-height: 1.5;
           color: ${({ theme }) => theme.colors.text.primary};
@@ -538,7 +538,7 @@ const EditTransactionModalWrapper = styled.div`
 
           .label {
             font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-            font-size: ${({ theme }) => theme.typography.fontSize.sm};
+            font-size: ${({ theme }) => theme.typography.fontSize.base};
             font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
             line-height: ${({ theme }) => theme.typography.lineHeight.normal};
             color: ${({ theme }) => theme.colors.text.primary};
@@ -551,7 +551,7 @@ const EditTransactionModalWrapper = styled.div`
             border: 1px solid ${({ theme }) => theme.colors.border};
             border-radius: ${({ theme }) => theme.borderRadius.lg};
             font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-            font-size: ${({ theme }) => theme.typography.fontSize.sm};
+            font-size: ${({ theme }) => theme.typography.fontSize.base};
             font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
             line-height: 1.5;
             color: ${({ theme }) => theme.colors.text.primary};
@@ -591,7 +591,7 @@ const EditTransactionModalWrapper = styled.div`
           border: none;
           border-radius: ${({ theme }) => theme.borderRadius.lg};
           font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
           line-height: 1.5;
           cursor: pointer;
@@ -634,7 +634,7 @@ const EditTransactionModalWrapper = styled.div`
           border: 1px solid ${({ theme }) => theme.colors.border};
           border-radius: ${({ theme }) => theme.borderRadius.lg};
           font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
           line-height: 1.5;
           cursor: pointer;
@@ -669,7 +669,7 @@ const EditTransactionModalWrapper = styled.div`
         border: none;
         border-radius: ${({ theme }) => theme.borderRadius.lg};
         font-family: ${({ theme }) => theme.typography.fontFamily.sans.join(', ')};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
         line-height: 1.5;
         cursor: pointer;

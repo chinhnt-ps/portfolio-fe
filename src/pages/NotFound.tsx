@@ -20,7 +20,7 @@ const ErrorCode = styled.h1`
 `;
 
 const ErrorMessage = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   color: ${({ theme }) => theme.colors.text.secondary};
   margin: 0 0 ${({ theme }) => theme.spacing[6]} 0;
 `;

@@ -50,9 +50,14 @@ const Greeting = styled.div`
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.full};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
+`;
+
+const GreetingIcon = styled.span`
+  display: inline-flex;
+  line-height: 0;
 `;
 
 const Name = styled.h1`
@@ -83,15 +88,11 @@ const Title = styled.h2`
 `;
 
 const Introduction = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   max-width: 700px;
   margin: 0;
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
-
-  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-    font-size: ${({ theme }) => theme.typography.fontSize.xl};
-  }
 `;
 
 const CTAButtons = styled.div`
@@ -107,14 +108,15 @@ const PrimaryButton = styled(Link)`
   align-items: center;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[8]};
+  min-height: ${({ theme }) => theme.components.buttonHeight};
+  padding: ${({ theme }) => theme.components.buttonPaddingY} ${({ theme }) => theme.components.buttonPaddingX};
   background: ${({ theme }) => theme.colors.primary};
   color: white;
   text-decoration: none;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  transition: all 0.3s ease;
+  transition: color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 14px 0 ${({ theme }) => theme.colors.primary}40;
@@ -135,7 +137,8 @@ const SecondaryButton = styled(Link)`
   align-items: center;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[8]};
+  min-height: ${({ theme }) => theme.components.buttonHeight};
+  padding: ${({ theme }) => theme.components.buttonPaddingY} ${({ theme }) => theme.components.buttonPaddingX};
   background: transparent;
   color: ${({ theme }) => theme.colors.text.primary};
   text-decoration: none;
@@ -143,7 +146,7 @@ const SecondaryButton = styled(Link)`
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  transition: all 0.3s ease;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   cursor: pointer;
 
   &:hover {
@@ -176,13 +179,13 @@ const StatItem = styled.div`
 `;
 
 const StatValue = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize['3xl']};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary};
 `;
 
 const StatLabel = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
@@ -193,7 +196,14 @@ export const Hero = () => {
     <AnimatedSection>
       <HeroWrapper>
         <Content>
-          <Greeting>👋 {t('hero.greeting', { defaultValue: 'Hello, I am' })}</Greeting>
+          <Greeting>
+            <GreetingIcon aria-hidden>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M5.5 7.5c.83 0 1.5-.67 1.5-1.5S6.33 4.5 5.5 4.5 4 5.17 4 6s.67 1.5 1.5 1.5zm5 0c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM8 10c-1.5 0-2.8.6-3.8 1.5.6.5 1.3.8 2 .8s1.4-.3 2-.8c-1-.9-2.3-1.5-3.8-1.5z" fill="currentColor"/>
+              </svg>
+            </GreetingIcon>
+            {t('hero.greeting', { defaultValue: 'Hello, I am' })}
+          </Greeting>
           <Name>{t('hero.name')}</Name>
           <Title>{t('hero.title')}</Title>
           <Introduction>{t('hero.subtitle')}</Introduction>

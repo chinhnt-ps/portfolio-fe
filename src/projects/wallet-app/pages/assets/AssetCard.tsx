@@ -105,7 +105,7 @@ const AssetCardWrapper = styled(Card)`
   }
 
   .asset-details {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
     margin-bottom: ${({ theme }) => theme.spacing[4]};
     display: flex;

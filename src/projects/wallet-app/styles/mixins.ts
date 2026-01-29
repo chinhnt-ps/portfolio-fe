@@ -78,7 +78,7 @@ export const formGroup = css`
   gap: ${({ theme }) => theme.spacing[2]};
 
   label {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
     color: ${({ theme }) => theme.colors.text.primary};
   }

@@ -184,7 +184,7 @@ const RecentTransactionsWrapper = styled.section`
   }
 
   .section-title {
-    font-size: ${({ theme }) => theme.typography.fontSize.xl};
+    font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
     color: ${({ theme }) => theme.colors.text.primary};
     letter-spacing: -0.01em;
@@ -285,12 +285,12 @@ const RecentTransactionsWrapper = styled.section`
               display: flex;
               flex-wrap: wrap;
               gap: ${({ theme }) => theme.spacing[2]};
-              font-size: ${({ theme }) => theme.typography.fontSize.sm};
+              font-size: ${({ theme }) => theme.typography.fontSize.base};
               color: ${({ theme }) => theme.colors.text.secondary};
             }
 
             .transaction-note {
-              font-size: ${({ theme }) => theme.typography.fontSize.sm};
+              font-size: ${({ theme }) => theme.typography.fontSize.base};
               color: ${({ theme }) => theme.colors.text.secondary};
               margin-top: ${({ theme }) => theme.spacing[1]};
             }
@@ -303,7 +303,7 @@ const RecentTransactionsWrapper = styled.section`
           flex-shrink: 0;
 
           .transaction-amount {
-            font-size: ${({ theme }) => theme.typography.fontSize.xl};
+            font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
             font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
             color: ${({ theme }) => theme.colors.text.secondary};
             text-align: right;

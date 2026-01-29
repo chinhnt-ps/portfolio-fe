@@ -176,7 +176,7 @@ const LiabilityCardWrapper = styled(Card)`
   }
 
   .liability-details {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
     margin-bottom: ${({ theme }) => theme.spacing[3]};
     display: flex;

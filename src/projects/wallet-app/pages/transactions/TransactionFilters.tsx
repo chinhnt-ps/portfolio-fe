@@ -200,7 +200,7 @@ const TransactionFiltersWrapper = styled(Card)`
       gap: ${({ theme }) => theme.spacing[2]};
 
       .label {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         color: ${({ theme }) => theme.colors.text.primary};
       }
@@ -211,7 +211,7 @@ const TransactionFiltersWrapper = styled(Card)`
         background: ${({ theme }) => theme.colors.background};
         border: 1px solid ${({ theme }) => theme.colors.border};
         border-radius: ${({ theme }) => theme.borderRadius.lg};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         color: ${({ theme }) => theme.colors.text.primary};
         transition: all 0.2s ease;
 

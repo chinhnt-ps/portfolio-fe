@@ -193,7 +193,7 @@ const AssetsWrapper = styled.div`
     border-radius: ${({ theme }) => theme.borderRadius['2xl']};
 
     .summary-title {
-      font-size: ${({ theme }) => theme.typography.fontSize.sm};
+      font-size: ${({ theme }) => theme.typography.fontSize.base};
       font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
       color: ${({ theme }) => theme.colors.text.secondary};
       margin: 0 0 ${({ theme }) => theme.spacing[2]};
@@ -220,7 +220,7 @@ const AssetsWrapper = styled.div`
     margin-top: ${({ theme }) => theme.spacing[8]};
 
     .pagination-info {
-      font-size: ${({ theme }) => theme.typography.fontSize.sm};
+      font-size: ${({ theme }) => theme.typography.fontSize.base};
       color: ${({ theme }) => theme.colors.text.secondary};
     }
 

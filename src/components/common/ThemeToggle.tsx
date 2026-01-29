@@ -6,14 +6,14 @@ const ToggleButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: ${({ theme }) => theme.components.iconButtonSize};
+  height: ${({ theme }) => theme.components.iconButtonSize};
   background: transparent;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   color: ${({ theme }) => theme.colors.text.primary};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     background: ${({ theme }) => theme.colors.hover};

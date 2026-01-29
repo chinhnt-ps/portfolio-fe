@@ -266,7 +266,7 @@ const AdjustBalanceModalWrapper = styled.div`
 
   .adjust-subtitle {
     margin: 0 0 ${({ theme }) => theme.spacing[4]};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
   }
 
@@ -278,7 +278,7 @@ const AdjustBalanceModalWrapper = styled.div`
   }
 
   .adjust-label {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
     color: ${({ theme }) => theme.colors.text.primary};
   }

@@ -276,7 +276,7 @@ const QuickAddTransactionWrapper = styled.section`
   }
 
   .section-title {
-    font-size: ${({ theme }) => theme.typography.fontSize.xl};
+    font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
     color: ${({ theme }) => theme.colors.text.primary};
     letter-spacing: -0.01em;

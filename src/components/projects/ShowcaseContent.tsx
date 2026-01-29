@@ -53,7 +53,7 @@ const InfoItem = styled.div`
 `;
 
 const InfoLabel = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.muted};
   text-transform: uppercase;

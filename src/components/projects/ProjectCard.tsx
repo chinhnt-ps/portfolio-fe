@@ -64,7 +64,7 @@ const ThumbnailWrapper = styled.div`
 `;
 
 const ProjectName = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin: 0 0 ${({ theme }) => theme.spacing[2]} 0;
@@ -72,7 +72,7 @@ const ProjectName = styled.h3`
 `;
 
 const ProjectDescription = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
   margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
@@ -108,7 +108,7 @@ const TechTag = styled.span`
 `;
 
 const SourceCodeLink = styled.a`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.primary};
   text-decoration: none;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};

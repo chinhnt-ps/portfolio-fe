@@ -153,7 +153,7 @@ const SidebarMenuWrapper = styled.aside`
         border: none;
         border-radius: ${({ theme }) => theme.borderRadius.lg};
         color: ${({ theme }) => theme.colors.text.secondary};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         cursor: pointer;
         text-align: left;

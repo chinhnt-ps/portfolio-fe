@@ -478,7 +478,7 @@ const AddTransactionWrapper = styled.div`
     border: 1px solid ${({ theme }) => theme.colors.error};
     border-radius: ${({ theme }) => theme.borderRadius.md};
     color: ${({ theme }) => theme.colors.error};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
   }
 
   .form {
@@ -492,7 +492,7 @@ const AddTransactionWrapper = styled.div`
       gap: ${({ theme }) => theme.spacing[2]};
 
       .label {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         color: ${({ theme }) => theme.colors.text.primary};
       }

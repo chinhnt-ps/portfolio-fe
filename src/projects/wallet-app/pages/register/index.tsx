@@ -237,7 +237,7 @@ const RegisterWrapper = styled.div`
         border: 1px solid ${({ theme }) => theme.colors.error};
         border-radius: ${({ theme }) => theme.borderRadius.md};
         color: ${({ theme }) => theme.colors.error};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
       }
 
       .form-group {
@@ -246,7 +246,7 @@ const RegisterWrapper = styled.div`
         gap: ${({ theme }) => theme.spacing[1]};
 
         .label {
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
           color: ${({ theme }) => theme.colors.text.primary};
 
@@ -350,14 +350,14 @@ const RegisterWrapper = styled.div`
         align-items: center;
         justify-content: center;
         gap: ${({ theme }) => theme.spacing[2]};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         color: ${({ theme }) => theme.colors.text.secondary};
 
         .link-button {
           background: none;
           border: none;
           color: ${({ theme }) => theme.colors.primary};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
           cursor: pointer;
           text-decoration: underline;

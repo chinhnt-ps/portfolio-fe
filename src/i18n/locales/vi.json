@@ -19,6 +19,7 @@
     }
   },
   "about": {
+    "avatarAlt": "Ảnh đại diện Nguyễn Thế Chính",
     "title": "Giới thiệu",
     "description": "Tôi là Fullstack Developer với hơn 3 năm kinh nghiệm chuyên về Java Spring Boot và ReactJS/TypeScript. Đam mê phát triển frontend và xây dựng các ứng dụng hiệu suất cao, thân thiện với người dùng.",
     "shortTermGoal": "Mục tiêu ngắn hạn: Nâng cao chuyên môn về cả frontend và backend, tối ưu hóa hiệu suất hệ thống, cải thiện kỹ năng thiết kế kiến trúc microservices và DevOps.",

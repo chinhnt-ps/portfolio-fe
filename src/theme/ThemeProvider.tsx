@@ -5,6 +5,7 @@ import { spacing } from './spacing';
 import { borderRadius } from './borderRadius';
 import { shadows } from './shadows';
 import { breakpoints } from './breakpoints';
+import { components } from './components';
 import { ReactNode, useEffect } from 'react';
 
 const lightThemeConfig = {
@@ -21,6 +22,7 @@ const lightThemeConfig = {
   borderRadius,
   shadows,
   breakpoints,
+  components,
 };
 
 const darkThemeConfig = {
@@ -37,6 +39,7 @@ const darkThemeConfig = {
   borderRadius,
   shadows,
   breakpoints,
+  components,
 };
 
 export const themes = {

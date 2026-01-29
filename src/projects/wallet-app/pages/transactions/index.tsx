@@ -526,7 +526,7 @@ const TransactionsWrapper = styled.div`
       flex-direction: column;
       align-items: center;
       gap: ${({ theme }) => theme.spacing[1]};
-      font-size: ${({ theme }) => theme.typography.fontSize.sm};
+      font-size: ${({ theme }) => theme.typography.fontSize.base};
       color: ${({ theme }) => theme.colors.text.secondary};
 
       .pagination-total {

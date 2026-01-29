@@ -4,6 +4,7 @@ import { spacing } from './spacing';
 import { borderRadius } from './borderRadius';
 import { shadows } from './shadows';
 import { breakpoints } from './breakpoints';
+import { components } from './components';
 
 declare module 'styled-components' {
   export interface DefaultTheme {
@@ -28,6 +29,7 @@ declare module 'styled-components' {
     borderRadius: typeof borderRadius;
     shadows: typeof shadows;
     breakpoints: typeof breakpoints;
+    components: typeof components;
   }
 }
 

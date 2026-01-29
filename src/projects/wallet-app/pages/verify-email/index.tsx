@@ -250,12 +250,12 @@ const VerifyEmailWrapper = styled.div`
       margin-bottom: ${({ theme }) => theme.spacing[4]};
 
       .email-label {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         color: ${({ theme }) => theme.colors.text.secondary};
       }
 
       .email-value {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         color: ${({ theme }) => theme.colors.text.primary};
       }
@@ -272,7 +272,7 @@ const VerifyEmailWrapper = styled.div`
         border: 1px solid ${({ theme }) => theme.colors.error};
         border-radius: ${({ theme }) => theme.borderRadius.md};
         color: ${({ theme }) => theme.colors.error};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
       }
 
       .form-group {
@@ -281,7 +281,7 @@ const VerifyEmailWrapper = styled.div`
         gap: ${({ theme }) => theme.spacing[1]};
 
         .label {
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
           color: ${({ theme }) => theme.colors.text.primary};
 
@@ -347,14 +347,14 @@ const VerifyEmailWrapper = styled.div`
         flex-direction: column;
         align-items: center;
         gap: ${({ theme }) => theme.spacing[2]};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         color: ${({ theme }) => theme.colors.text.secondary};
 
         .resend-button {
           background: none;
           border: none;
           color: ${({ theme }) => theme.colors.primary};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
           cursor: pointer;
           text-decoration: underline;
@@ -375,7 +375,7 @@ const VerifyEmailWrapper = styled.div`
           background: none;
           border: none;
           color: ${({ theme }) => theme.colors.text.secondary};
-          font-size: ${({ theme }) => theme.typography.fontSize.sm};
+          font-size: ${({ theme }) => theme.typography.fontSize.base};
           cursor: pointer;
           padding: 0;
 

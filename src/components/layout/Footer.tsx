@@ -24,7 +24,7 @@ const FooterContent = styled.div`
 
 const Copyright = styled.p`
   color: ${({ theme }) => theme.colors.text.muted};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   margin: 0;
 `;
 
@@ -36,7 +36,7 @@ const Links = styled.div`
 const FooterLink = styled.a`
   color: ${({ theme }) => theme.colors.text.secondary};
   text-decoration: none;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   transition: color 0.2s ease;
 
   &:hover {
@@ -55,10 +55,10 @@ export const Footer = () => {
             &copy; {currentYear} Portfolio. All rights reserved.
           </Copyright>
           <Links>
-            <FooterLink href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <FooterLink href="https://github.com/chinhnt113" target="_blank" rel="noopener noreferrer">
               GitHub
             </FooterLink>
-            <FooterLink href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+            <FooterLink href="https://www.linkedin.com/in/chinhnt113/" target="_blank" rel="noopener noreferrer">
               LinkedIn
             </FooterLink>
           </Links>

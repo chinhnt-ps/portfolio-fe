@@ -32,34 +32,25 @@ const Description = styled.p`
   margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
 `;
 
+// Dùng Firebase Storage URL (firebasestorage.googleapis.com) để áp dụng Firebase Rules; URL GCS (storage.googleapis.com) không dùng Rules.
+const AVATAR_URL =
+  'https://firebasestorage.googleapis.com/v0/b/chinhnt-ps.firebasestorage.app/o/uploads%2Fa9fa3867d97f4a4b87beba53e68126bf-1769702403691.jpg?alt=media';
+
 const ProfileImage = styled.div`
   width: 200px;
   height: 200px;
   border-radius: ${({ theme }) => theme.borderRadius.full};
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}30, ${({ theme }) => theme.colors.primary}10);
   border: 3px solid ${({ theme }) => theme.colors.primary}40;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 80px;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, ${({ theme }) => theme.colors.primary}20, transparent);
-    animation: rotate 3s linear infinite;
-  }
-
-  @keyframes rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -72,7 +63,7 @@ const Goals = styled.div`
 `;
 
 const GoalItem = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
   margin: 0 0 ${({ theme }) => theme.spacing[3]} 0;
@@ -85,14 +76,14 @@ const EducationSection = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
 `;
 
 const EducationItem = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
   margin: 0 0 ${({ theme }) => theme.spacing[2]} 0;
@@ -108,7 +99,9 @@ export const About = () => {
   return (
     <AnimatedSection>
       <AboutWrapper>
-        <ProfileImage />
+        <ProfileImage>
+          <img src={AVATAR_URL} alt={t('about.avatarAlt')} className="avatar-img" />
+        </ProfileImage>
         <Content>
           <Title>{t('about.title')}</Title>
           <Description>{t('about.description')}</Description>

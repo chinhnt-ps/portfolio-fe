@@ -219,7 +219,7 @@ const ReceivablesWrapper = styled.div`
     justify-content: center;
     gap: ${({ theme }) => theme.spacing[4]};
     margin-top: ${({ theme }) => theme.spacing[8]};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
   }
 `;

@@ -174,7 +174,7 @@ const AccountCardWrapper = styled(Card)`
       color: ${({ theme }) => theme.colors.error || '#ef4444'};
 
       .balance-label {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         color: ${({ theme }) => theme.colors.text.secondary};
         margin-right: ${({ theme }) => theme.spacing[2]};
@@ -183,7 +183,7 @@ const AccountCardWrapper = styled(Card)`
   }
 
   .account-limit {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
     margin-bottom: ${({ theme }) => theme.spacing[2]};
 
@@ -194,7 +194,7 @@ const AccountCardWrapper = styled(Card)`
   }
 
   .account-details {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
     margin-bottom: ${({ theme }) => theme.spacing[4]};
   }

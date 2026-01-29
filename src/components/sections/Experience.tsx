@@ -57,7 +57,7 @@ const TimelineItem = styled.div`
 `;
 
 const Company = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin: 0 0 ${({ theme }) => theme.spacing[2]} 0;
@@ -67,14 +67,19 @@ const Company = styled.h3`
 `;
 
 const CompanyIcon = styled.div`
-  width: 40px;
-  height: 40px;
+  width: ${({ theme }) => theme.components.iconButtonSize};
+  height: ${({ theme }) => theme.components.iconButtonSize};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}20, ${({ theme }) => theme.colors.primary}10);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const Period = styled.div`
@@ -85,20 +90,20 @@ const Period = styled.div`
   background: ${({ theme }) => theme.colors.primary}15;
   color: ${({ theme }) => theme.colors.primary};
   border-radius: ${({ theme }) => theme.borderRadius.full};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   margin-bottom: ${({ theme }) => theme.spacing[3]};
 `;
 
 const Role = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.primary};
   margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
 const Description = styled.ul`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
   margin: 0;
@@ -130,15 +135,18 @@ const ProductLinks = styled.div`
 const ProductLink = styled.a`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing[2]};
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
+  min-height: ${({ theme }) => theme.components.buttonSmallHeight};
+  padding: 0 ${({ theme }) => theme.spacing[4]};
   background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.background};
   border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary}dd;
@@ -216,7 +224,12 @@ export const Experience = () => {
         {experiences.map((exp, index) => (
           <TimelineItem key={index}>
             <Company>
-              <CompanyIcon>🏢</CompanyIcon>
+              <CompanyIcon aria-hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </CompanyIcon>
               {exp.company}
             </Company>
             <Period>

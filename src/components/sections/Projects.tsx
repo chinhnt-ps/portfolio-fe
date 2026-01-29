@@ -33,12 +33,13 @@ const ProjectCard = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing[6]};
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
   overflow: hidden;
+  cursor: default;
 
   &::before {
     content: '';
@@ -82,14 +83,14 @@ const ProjectImageWrapper = styled.div`
 `;
 
 const ProjectTitle = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin: 0 0 ${({ theme }) => theme.spacing[2]} 0;
 `;
 
 const ProjectDescription = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.text.secondary};
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
   margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
@@ -125,10 +126,11 @@ const ProjectLinks = styled.div`
 `;
 
 const ProjectLink = styled.a`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   color: ${({ theme }) => theme.colors.primary};
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     opacity: 0.8;

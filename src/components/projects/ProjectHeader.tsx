@@ -59,7 +59,7 @@ const TechTag = styled.span`
   background: ${({ theme }) => theme.colors.primary}15;
   color: ${({ theme }) => theme.colors.primary};
   border-radius: ${({ theme }) => theme.borderRadius.full};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   border: 1px solid ${({ theme }) => theme.colors.primary}30;
 `;

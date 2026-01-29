@@ -7,17 +7,17 @@ const ToggleButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  height: 40px;
+  min-width: ${({ theme }) => theme.components.iconButtonSize};
+  height: ${({ theme }) => theme.components.iconButtonSize};
   padding: 0 ${({ theme }) => theme.spacing[3]};
   background: transparent;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     background: ${({ theme }) => theme.colors.hover};

@@ -155,7 +155,7 @@ const BudgetCardWrapper = styled(Card)`
   .budget-stats {
     display: flex;
     justify-content: space-between;
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
     color: ${({ theme }) => theme.colors.text.secondary};
   }
 `;

@@ -153,7 +153,7 @@ const WalletAppHeaderWrapper = styled.header`
       display: flex;
       align-items: center;
       gap: ${({ theme }) => theme.spacing[3]};
-      font-size: ${({ theme }) => theme.typography.fontSize.xl};
+      font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
       font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
       color: ${({ theme }) => theme.colors.text.primary};
       cursor: pointer;
@@ -174,7 +174,7 @@ const WalletAppHeaderWrapper = styled.header`
       gap: ${({ theme }) => theme.spacing[4]};
 
       .user-name {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         color: ${({ theme }) => theme.colors.text.primary};
         display: none;
@@ -193,7 +193,7 @@ const WalletAppHeaderWrapper = styled.header`
         border: 1px solid ${({ theme }) => theme.colors.border};
         border-radius: ${({ theme }) => theme.borderRadius.lg};
         color: ${({ theme }) => theme.colors.text.secondary};
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
         cursor: pointer;
         opacity: 1;

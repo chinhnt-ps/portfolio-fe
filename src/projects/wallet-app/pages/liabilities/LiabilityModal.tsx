@@ -414,7 +414,7 @@ const StyledDialogContent = styled(DialogContent)`
     color: ${({ theme }) => theme.colors.error};
     border-radius: ${({ theme }) => theme.borderRadius.md};
     margin-bottom: ${({ theme }) => theme.spacing[4]};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm};
+    font-size: ${({ theme }) => theme.typography.fontSize.base};
   }
 
   .form-group {
@@ -457,7 +457,7 @@ const StyledDialogContent = styled(DialogContent)`
 
       .settlement-loading,
       .settlement-empty {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         color: ${({ theme }) => theme.colors.text.secondary};
         padding: ${({ theme }) => theme.spacing[3]};
         text-align: center;
@@ -476,7 +476,7 @@ const StyledDialogContent = styled(DialogContent)`
           .settlement-row {
             display: flex;
             justify-content: space-between;
-            font-size: ${({ theme }) => theme.typography.fontSize.sm};
+            font-size: ${({ theme }) => theme.typography.fontSize.base};
 
             .settlement-label {
               color: ${({ theme }) => theme.colors.text.secondary};
@@ -496,7 +496,7 @@ const StyledDialogContent = styled(DialogContent)`
       padding-top: ${({ theme }) => theme.spacing[4]};
 
       .settlement-form-title {
-        font-size: ${({ theme }) => theme.typography.fontSize.sm};
+        font-size: ${({ theme }) => theme.typography.fontSize.base};
         font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
         color: ${({ theme }) => theme.colors.text.primary};
         margin: 0 0 ${({ theme }) => theme.spacing[3]} 0;

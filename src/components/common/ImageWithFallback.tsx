@@ -9,7 +9,7 @@ const ImageWrapper = styled.div`
   justify-content: center;
   background: ${({ theme }) => theme.colors.surface};
   color: ${({ theme }) => theme.colors.text.muted};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
 `;
 
 const StyledImage = styled.img<{ $loaded: boolean }>`

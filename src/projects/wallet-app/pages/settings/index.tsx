@@ -132,7 +132,7 @@ const SettingsWrapper = styled.div`
     margin-bottom: ${({ theme }) => theme.spacing[8]};
 
     .section-title {
-      font-size: ${({ theme }) => theme.typography.fontSize.xl};
+      font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
       font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
       color: ${({ theme }) => theme.colors.text.primary};
       margin: 0 0 ${({ theme }) => theme.spacing[4]} 0;
