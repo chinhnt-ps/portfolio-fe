@@ -54,60 +54,59 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Check if user is authenticated on mount
+  /** Set user from decoded JWT payload (sub, email, role, fullName, ...) */
+  const setUserFromDecoded = (decoded: Record<string, unknown>) => {
+    setUser({
+      id: (decoded.sub as string) || (decoded.userId as string) || '',
+      email: (decoded.email as string) || '',
+      fullName: (decoded.fullName as string) || (decoded.name as string) || '',
+      status: (decoded.status as string) || 'ACTIVE',
+      role: (decoded.role as string) || 'USER',
+    });
+  };
+
+  // Check if user is authenticated on mount (restore session from localStorage)
   useEffect(() => {
     const checkAuth = async () => {
       const token = tokenStorage.getAccessToken();
       if (token) {
         try {
-          // Decode JWT to get user info
           const decoded = decodeJWT(token);
-          if (decoded && decoded.exp) {
-            // Check if token is expired
-            const expirationTime = decoded.exp * 1000; // Convert to milliseconds
-            if (Date.now() < expirationTime) {
-              // Token is valid, extract user info
-              setUser({
-                id: decoded.sub || decoded.userId || '',
-                email: decoded.email || '',
-                fullName: decoded.fullName || decoded.name || 'User',
-                status: decoded.status || 'ACTIVE',
-                role: decoded.role || 'USER',
-              });
-            } else {
-              // Token expired, try to refresh
-              const refreshToken = tokenStorage.getRefreshToken();
-              if (refreshToken) {
-                try {
-                  await walletApi.auth.refreshToken(refreshToken);
-                  // After refresh, decode new token
-                  const newToken = tokenStorage.getAccessToken();
-                  if (newToken) {
-                    const newDecoded = decodeJWT(newToken);
-                    if (newDecoded) {
-                      setUser({
-                        id: newDecoded.sub || newDecoded.userId || '',
-                        email: newDecoded.email || '',
-                        fullName: newDecoded.fullName || newDecoded.name || 'User',
-                        status: newDecoded.status || 'ACTIVE',
-                        role: newDecoded.role || 'USER',
-                      });
-                    }
-                  }
-                } catch (refreshError) {
-                  // Refresh failed, clear tokens
-                  tokenStorage.clearTokens();
-                  setUser(null);
-                }
-              } else {
-                // No refresh token, clear
-                tokenStorage.clearTokens();
-                setUser(null);
+          if (!decoded) {
+            tokenStorage.clearTokens();
+            setUser(null);
+            setIsLoading(false);
+            return;
+          }
+          // Có exp: kiểm tra hết hạn và refresh nếu cần. Không có exp: coi token hợp lệ, set user (backend sẽ 401 nếu hết hạn).
+          const hasExp = typeof decoded.exp === 'number';
+          const notExpired = hasExp ? Date.now() < decoded.exp * 1000 : true;
+
+          if (notExpired) {
+            setUserFromDecoded(decoded);
+            setIsLoading(false);
+            return;
+          }
+
+          // Token hết hạn → thử refresh
+          const refreshToken = tokenStorage.getRefreshToken();
+          if (refreshToken) {
+            try {
+              await walletApi.auth.refreshToken(refreshToken);
+              const newToken = tokenStorage.getAccessToken();
+              if (newToken) {
+                const newDecoded = decodeJWT(newToken);
+                if (newDecoded) setUserFromDecoded(newDecoded);
               }
+            } catch {
+              tokenStorage.clearTokens();
+              setUser(null);
             }
+          } else {
+            tokenStorage.clearTokens();
+            setUser(null);
           }
         } catch (error) {
-          // Token invalid, clear it
           console.error('Auth check error:', error);
           tokenStorage.clearTokens();
           setUser(null);
@@ -125,24 +124,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (credentials: LoginRequest): Promise<void> => {
     try {
       const authResponse = await walletApi.auth.login(credentials);
-      // Decode JWT to get user info (in case user object is not in response)
+      // Ưu tiên user từ response (có fullName từ backend), fallback JWT decode
       const token = tokenStorage.getAccessToken();
+      const nameFromApi = authResponse.fullName ?? authResponse.user?.fullName ?? '';
       if (token) {
         const decoded = decodeJWT(token);
         if (decoded) {
           setUser({
-            id: authResponse.user?.id || decoded.sub || decoded.userId || '',
-            email: authResponse.user?.email || decoded.email || credentials.email,
-            fullName: authResponse.user?.fullName || decoded.fullName || decoded.name || 'User',
-            status: authResponse.user?.status || decoded.status || 'ACTIVE',
-            role: authResponse.user?.role || decoded.role || 'USER',
+            id: authResponse.user?.id ?? (decoded.sub as string) ?? (decoded.userId as string) ?? '',
+            email: authResponse.user?.email ?? (decoded.email as string) ?? credentials.email,
+            fullName: nameFromApi || (decoded.fullName as string) || (decoded.name as string) || '',
+            status: authResponse.user?.status ?? (decoded.status as string) ?? 'ACTIVE',
+            role: authResponse.user?.role ?? (decoded.role as string) ?? 'USER',
           });
         } else {
-          // Fallback to response user if JWT decode fails
-          setUser(authResponse.user);
+          setUser({
+            ...authResponse.user,
+            fullName: nameFromApi || authResponse.user?.fullName || '',
+          });
         }
       } else {
-        setUser(authResponse.user);
+        setUser({
+          ...authResponse.user,
+          fullName: nameFromApi || authResponse.user?.fullName || '',
+        });
       }
     } catch (error) {
       throw error;
@@ -180,13 +185,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (decoded && decoded.exp) {
         const expirationTime = decoded.exp * 1000;
         if (Date.now() < expirationTime) {
-          setUser({
-            id: decoded.sub || decoded.userId || '',
-            email: decoded.email || '',
-            fullName: decoded.fullName || decoded.name || 'User',
-            status: decoded.status || 'ACTIVE',
-            role: decoded.role || 'USER',
-          });
+          setUserFromDecoded(decoded);
         } else {
           // Token expired, try refresh
           const refreshToken = tokenStorage.getRefreshToken();
@@ -195,15 +194,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const newToken = tokenStorage.getAccessToken();
             if (newToken) {
               const newDecoded = decodeJWT(newToken);
-              if (newDecoded) {
-                setUser({
-                  id: newDecoded.sub || newDecoded.userId || '',
-                  email: newDecoded.email || '',
-                  fullName: newDecoded.fullName || newDecoded.name || 'User',
-                  status: newDecoded.status || 'ACTIVE',
-                  role: newDecoded.role || 'USER',
-                });
-              }
+              if (newDecoded) setUserFromDecoded(newDecoded);
             }
           } else {
             throw new Error('No refresh token');

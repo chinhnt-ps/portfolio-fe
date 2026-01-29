@@ -110,17 +110,18 @@ const WalletAppRouter = () => {
     setCurrentRoute(route);
   };
 
-  // Redirect logic
+  // Redirect logic - chỉ chạy sau khi đã xong check auth để tránh F5 nhảy về #login
   useEffect(() => {
-    // Các route không cần authentication
+    if (isLoading) return;
+
     const publicRoutes: WalletAppRoute[] = ['login', 'register', 'verify-email'];
-    
+
     if (!isAuthenticated && !publicRoutes.includes(currentRoute)) {
       setCurrentRoute('login');
     } else if (isAuthenticated && publicRoutes.includes(currentRoute)) {
       setCurrentRoute('dashboard');
     }
-  }, [isAuthenticated, currentRoute]);
+  }, [isLoading, isAuthenticated, currentRoute]);
 
   const renderPage = () => {
     switch (currentRoute) {

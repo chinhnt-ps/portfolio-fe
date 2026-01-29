@@ -64,7 +64,7 @@ export const WalletAppHeader = ({ onMenuToggle }: WalletAppHeaderProps) => {
         <div className="user-section">
           <LanguageToggle />
           <ThemeToggle />
-          <span className="user-name">{user?.fullName || user?.email || 'User'}</span>
+          <span className="user-name">{user?.fullName?.trim() || user?.email || 'User'}</span>
           <button 
             className={`logout-button ${isLoggingOut ? 'logout-button--loading' : ''}`}
             onClick={handleLogout} 
