@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AmountInput } from '../../components/AmountInput';
 import type { Account, Category, TransactionFilters as TFilters } from '../../api/types';
 
 interface TransactionFiltersProps {
@@ -109,27 +110,23 @@ export const TransactionFilters = ({
 
           <div className="filter-group">
             <label className="label">{t('wallet.transactions.minAmount') || 'Tối thiểu'}</label>
-            <Input
+            <AmountInput
               className="number-input"
-              type="number"
-              step="0.01"
-              min="0"
+              value={filters.minAmount || 0}
+              onChange={(value) => onFilterChange('minAmount', value || undefined)}
               placeholder="0"
-              value={filters.minAmount || ''}
-              onChange={(e) => onFilterChange('minAmount', e.target.value ? parseFloat(e.target.value) : undefined)}
+              min={0}
             />
           </div>
 
           <div className="filter-group">
             <label className="label">{t('wallet.transactions.maxAmount') || 'Tối đa'}</label>
-            <Input
+            <AmountInput
               className="number-input"
-              type="number"
-              step="0.01"
-              min="0"
+              value={filters.maxAmount || 0}
+              onChange={(value) => onFilterChange('maxAmount', value || undefined)}
               placeholder="0"
-              value={filters.maxAmount || ''}
-              onChange={(e) => onFilterChange('maxAmount', e.target.value ? parseFloat(e.target.value) : undefined)}
+              min={0}
             />
           </div>
 

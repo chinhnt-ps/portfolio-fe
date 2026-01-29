@@ -49,6 +49,8 @@ export const TransactionCard = ({
       case 'INCOME':
       case 'RECEIVABLE_SETTLEMENT':
         return 'default';
+      case 'BALANCE_ADJUSTMENT':
+        return 'secondary';
       default:
         return 'secondary';
     }
@@ -66,6 +68,8 @@ export const TransactionCard = ({
         return t('wallet.transactions.receivableSettlement', 'Thu nợ');
       case 'LIABILITY_SETTLEMENT':
         return t('wallet.transactions.liabilitySettlement', 'Trả nợ');
+      case 'BALANCE_ADJUSTMENT':
+        return 'Điều chỉnh';
       default:
         return transaction.type;
     }
@@ -194,8 +198,8 @@ const TransactionCardWrapper = styled.div`
         text-transform: uppercase;
         letter-spacing: 0.5px;
         flex-shrink: 0;
-        min-width: 72px;
-        text-align: center;
+        min-width: 130px;
+        justify-content: center;
 
         &--expense {
           background: ${({ theme }) => theme.colors.error}20;
@@ -220,6 +224,11 @@ const TransactionCardWrapper = styled.div`
         &--liability-settlement {
           background: ${({ theme }) => theme.colors.warning?.[500] ? `${theme.colors.warning[500]}20` : '#f59e0b20'};
           color: ${({ theme }) => theme.colors.warning?.[500] || '#f59e0b'};
+        }
+
+        &--balance-adjust {
+          background: ${({ theme }) => theme.colors.primary}20;
+          color: ${({ theme }) => theme.colors.primary};
         }
       }
 

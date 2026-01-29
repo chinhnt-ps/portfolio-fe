@@ -6,6 +6,7 @@ import { handleApiError } from '../../api/walletApi';
 import { useAccounts, useCategories } from '../../api/hooks';
 import type { UpdateTransactionRequest, Transaction } from '../../api/types';
 import { Icon } from '../../components/icons';
+import { AmountInput } from '../../components/AmountInput';
 import { Textarea } from '@/components/ui/textarea';
 import { formatForDateTimeLocal, convertDateTimeLocalToISO } from '../../utils/dateUtils';
 
@@ -192,14 +193,12 @@ export const EditTransaction = () => {
 
         <div className="form-group">
           <label className="label">Số tiền *</label>
-          <input
+          <AmountInput
             className="input"
-            type="number"
-            step="0.01"
-            min="0"
             value={formData.amount || transaction.amount}
-            onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
+            onChange={(value) => handleChange('amount', value)}
             required
+            min={0}
           />
         </div>
 

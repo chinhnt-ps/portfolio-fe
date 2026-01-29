@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AmountInput } from '../../components/AmountInput';
 import {
   Dialog,
   DialogContent,
@@ -128,15 +129,13 @@ export const AssetModal = ({
 
           <div className="form-group">
             <Label className="label">Giá trị ước tính</Label>
-            <Input
+            <AmountInput
               className="input"
-              type="number"
-              step="0.01"
-              value={formData.estimatedValue ?? ''}
-              onChange={(e) =>
+              value={formData.estimatedValue ?? 0}
+              onChange={(value) =>
                 setFormData({
                   ...formData,
-                  estimatedValue: e.target.value ? parseFloat(e.target.value) : undefined,
+                  estimatedValue: value || undefined,
                 })
               }
               placeholder="Nhập giá trị ước tính"

@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { AmountInput } from '../../components/AmountInput';
 import { useAccounts } from '../../api/hooks';
 import { handleApiError } from '../../api/walletApi';
 import { PageHeader, EmptyState, LoadingState } from '../../components/shared';
@@ -25,6 +26,7 @@ export const Accounts = () => {
     createAccount,
     updateAccount,
     deleteAccount,
+    adjustAccountBalance,
   } = useAccounts();
 
   // Local UI state
@@ -33,7 +35,7 @@ export const Accounts = () => {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [adjustingAccount, setAdjustingAccount] = useState<Account | null>(null);
-  const [adjustActualBalance, setAdjustActualBalance] = useState<string>('');
+  const [adjustActualBalance, setAdjustActualBalance] = useState<number>(0);
   const [adjustNote, setAdjustNote] = useState<string>('');
   const [isAdjusting, setIsAdjusting] = useState(false);
 
@@ -79,13 +81,13 @@ export const Accounts = () => {
 
   const handleOpenAdjustModal = useCallback((account: Account) => {
     setAdjustingAccount(account);
-    setAdjustActualBalance(String(account.currentBalance ?? account.openingBalance ?? 0));
+    setAdjustActualBalance(account.currentBalance ?? 0);
     setAdjustNote('');
   }, []);
 
   const handleCloseAdjustModal = useCallback(() => {
     setAdjustingAccount(null);
-    setAdjustActualBalance('');
+    setAdjustActualBalance(0);
     setAdjustNote('');
   }, []);
 
@@ -94,18 +96,17 @@ export const Accounts = () => {
     setError(null);
     setIsAdjusting(true);
     try {
-      const parsed = parseFloat(adjustActualBalance.replace(',', '.'));
-      if (Number.isNaN(parsed) || parsed < 0) {
+      if (Number.isNaN(adjustActualBalance) || adjustActualBalance < 0) {
         throw new Error('Số dư thực tế không hợp lệ');
       }
-      await useAccounts().adjustAccountBalance(adjustingAccount.id, parsed, adjustNote || undefined);
+      await adjustAccountBalance(adjustingAccount.id, adjustActualBalance, adjustNote || undefined);
       handleCloseAdjustModal();
     } catch (err) {
       setError(handleApiError(err));
     } finally {
       setIsAdjusting(false);
     }
-  }, [adjustingAccount, adjustActualBalance, adjustNote, handleCloseAdjustModal]);
+  }, [adjustingAccount, adjustActualBalance, adjustNote, adjustAccountBalance, handleCloseAdjustModal]);
 
   if (isLoading) {
     return (
@@ -174,11 +175,10 @@ export const Accounts = () => {
             </p>
             <div className="adjust-form-group">
               <label className="adjust-label">Số dư thực tế hiện tại</label>
-              <Input
-                type="number"
+              <AmountInput
                 className="adjust-input"
                 value={adjustActualBalance}
-                onChange={(e) => setAdjustActualBalance(e.target.value)}
+                onChange={(value) => setAdjustActualBalance(value)}
                 min={0}
               />
             </div>

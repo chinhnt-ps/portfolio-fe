@@ -126,15 +126,19 @@ export const RecentTransactions = ({ dateFilter }: RecentTransactionsProps) => {
                     <div className="transaction-left">
                       <Badge
                         variant={transaction.type === 'EXPENSE' ? 'destructive' : transaction.type === 'INCOME' ? 'default' : 'secondary'}
-                        className={`transaction-type-badge transaction-type-badge--${transaction.type.toLowerCase()}`}
+                        className={`transaction-type-badge transaction-type-badge--${transaction.type.toLowerCase().replace('_', '-')}`}
                       >
                         {transaction.type === 'EXPENSE' ? t('wallet.transactions.expense') :
                          transaction.type === 'INCOME' ? t('wallet.transactions.income') :
-                         t('wallet.transactions.transfer')}
+                         transaction.type === 'TRANSFER' ? t('wallet.transactions.transfer') :
+                         transaction.type === 'RECEIVABLE_SETTLEMENT' ? t('wallet.transactions.receivableSettlement', 'Thu nợ') :
+                         transaction.type === 'LIABILITY_SETTLEMENT' ? t('wallet.transactions.liabilitySettlement', 'Trả nợ') :
+                         transaction.type === 'BALANCE_ADJUSTMENT' ? 'Điều chỉnh' :
+                         transaction.type}
                       </Badge>
                       <div className="transaction-info">
                         <div className="transaction-category">
-                          {getCategoryName(transaction.categoryId, transaction.category?.name) || transaction.type}
+                          {getCategoryName(transaction.categoryId, transaction.category?.name) || transaction.type === 'BALANCE_ADJUSTMENT' ? 'Điều chỉnh' : transaction.type}
                         </div>
                         <div className="transaction-meta">
                           <span className="transaction-date">{formatDateTime(transaction.occurredAt)}</span>
@@ -217,7 +221,6 @@ const RecentTransactionsWrapper = styled.section`
           theme.colors.background === '#0a0a0a'
             ? 'rgba(14, 165, 233, 0.3)'
             : 'rgba(14, 165, 233, 0.2)'};
-        transform: translateY(-2px);
       }
 
       @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -245,6 +248,9 @@ const RecentTransactionsWrapper = styled.section`
             text-transform: uppercase;
             letter-spacing: 0.5px;
             flex-shrink: 0;
+            min-width: 130px;
+            justify-content: center;
+            align-items: center;
 
             &--expense {
               background: ${({ theme }) => theme.colors.error}20;

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AmountInput } from '../../components/AmountInput';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,7 @@ const initialFormData: CreateAccountRequest = {
   name: '',
   type: 'CASH',
   currency: 'VND',
-  openingBalance: 0,
+  initialBalance: undefined,
   creditLimit: null,
   note: '',
 };
@@ -54,7 +55,7 @@ export const AccountModal = ({
         name: account.name,
         type: account.type,
         currency: account.currency,
-        openingBalance: account.openingBalance,
+        initialBalance: undefined, // Không cho sửa số dư ban đầu khi edit
         creditLimit: account.creditLimit ?? null,
         note: account.note || '',
       });
@@ -137,33 +138,35 @@ export const AccountModal = ({
             </Select>
           </div>
 
-          <div className="form-group">
-            <Label className="label">
-              {formData.type === 'POSTPAID' ? 'Dư nợ ban đầu' : 'Số dư ban đầu'}
-            </Label>
-            <Input
-              className="input"
-              type="number"
-              step="0.01"
-              value={formData.openingBalance}
-              onChange={(e) =>
-                setFormData({ ...formData, openingBalance: parseFloat(e.target.value) || 0 })
-              }
-            />
-          </div>
+          {!account && (
+            <div className="form-group">
+              <Label className="label">
+                {formData.type === 'POSTPAID' ? 'Dư nợ ban đầu (tùy chọn)' : 'Số dư ban đầu (tùy chọn)'}
+              </Label>
+              <AmountInput
+                className="input"
+                value={formData.initialBalance ?? 0}
+                onChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    initialBalance: value || undefined,
+                  })
+                }
+                placeholder="Để trống = 0"
+              />
+            </div>
+          )}
 
           {formData.type === 'POSTPAID' && (
             <div className="form-group">
               <Label className="label">Hạn mức (để trống = không giới hạn)</Label>
-              <Input
+              <AmountInput
                 className="input"
-                type="number"
-                step="0.01"
-                value={formData.creditLimit ?? ''}
-                onChange={(e) =>
+                value={formData.creditLimit ?? 0}
+                onChange={(value) =>
                   setFormData({
                     ...formData,
-                    creditLimit: e.target.value ? parseFloat(e.target.value) : null,
+                    creditLimit: value || null,
                   })
                 }
                 placeholder="Ví dụ: 10000000"

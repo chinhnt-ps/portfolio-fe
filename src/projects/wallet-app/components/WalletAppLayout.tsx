@@ -59,19 +59,24 @@ const WalletAppLayoutWrapper = styled.div`
       width: 100%;
       min-width: 0;
       max-width: 100%;
+      margin: 0 auto;
       ${customScrollbar}
 
       @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-        padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[6]};
-        margin-left: 280px;
-        width: calc(100% - 280px);
-        max-width: 1400px;
-        margin-left: 280px;
-        margin-right: auto;
+        padding-top: ${({ theme }) => theme.spacing[8]};
+        padding-bottom: ${({ theme }) => theme.spacing[8]};
+        padding-left: 280px; /* Space for sidebar */
+        width: 100%;
+        max-width: calc(1400px + 280px); /* Content width + sidebar space */
+        margin: 0 auto;
+        /* Căn giữa: padding-right tự động cân bằng */
+        padding-right: max(${({ theme }) => theme.spacing[6]}, calc((100vw - 1400px - 280px) / 2));
       }
 
       @media (min-width: ${({ theme }) => theme.breakpoints.xl}) {
-        padding: ${({ theme }) => theme.spacing[10]} ${({ theme }) => theme.spacing[8]};
+        padding-top: ${({ theme }) => theme.spacing[10]};
+        padding-bottom: ${({ theme }) => theme.spacing[10]};
+        padding-right: max(${({ theme }) => theme.spacing[8]}, calc((100vw - 1400px - 280px) / 2));
       }
     }
   }

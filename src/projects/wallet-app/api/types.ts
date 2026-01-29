@@ -72,8 +72,7 @@ export interface Account {
   name: string;
   type: AccountType;
   currency: string;
-  openingBalance: number;
-  currentBalance: number;
+  currentBalance: number; // Calculated: sum of all transactions
   
   // POSTPAID specific fields
   creditLimit?: number | null;     // Hạn mức (null = unlimited)
@@ -106,7 +105,7 @@ export interface CreateAccountRequest {
   name: string;
   type: AccountType;
   currency: string;
-  openingBalance: number;
+  initialBalance?: number;  // Số dư ban đầu (optional, default: 0). Với POSTPAID: dư nợ ban đầu
   creditLimit?: number | null;  // Cho POSTPAID
   note?: string;
 }
@@ -150,7 +149,8 @@ export type TransactionType =
   | 'INCOME'
   | 'TRANSFER'
   | 'RECEIVABLE_SETTLEMENT'
-  | 'LIABILITY_SETTLEMENT';
+  | 'LIABILITY_SETTLEMENT'
+  | 'BALANCE_ADJUSTMENT';
 
 export interface Transaction {
   id: string;

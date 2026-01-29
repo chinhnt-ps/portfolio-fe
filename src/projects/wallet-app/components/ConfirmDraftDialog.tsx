@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Icon } from './icons';
+import { AmountInput } from './AmountInput';
 import type {
   ConfirmDraftData,
   Account,
@@ -267,18 +268,6 @@ export const ConfirmDraftDialog = ({
           {/* Amount */}
           <div className="draft-field">
             <Label>Số tiền</Label>
-            <Input
-              ref={firstInputRef}
-              type="number"
-              value={transactionDraft.amount?.toString() || ''}
-              onChange={(e) => {
-                const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                if (isTransaction && transactionDraft) {
-                  setDraft({ ...transactionDraft, amount: value } as TransactionDraft);
-                }
-              }}
-              placeholder="Nhập số tiền"
-            />
             {transactionDraft.amount ? (
               <div className="draft-value">
                 {formatCurrency(transactionDraft.amount, transactionDraft.currency)}
@@ -287,18 +276,15 @@ export const ConfirmDraftDialog = ({
                 )}
               </div>
             ) : (
-            <Input
-              ref={firstInputRef}
-              type="number"
-              value={transactionDraft.amount || ''}
-              onChange={(e) => {
-                if (isTransaction && transactionDraft) {
-                  setDraft({ ...transactionDraft, amount: parseFloat(e.target.value) || 0 } as TransactionDraft);
-                }
-              }}
-              placeholder="Nhập số tiền"
-              tabIndex={1}
-            />
+              <AmountInput
+                value={transactionDraft.amount || 0}
+                onChange={(value) => {
+                  if (isTransaction && transactionDraft) {
+                    setDraft({ ...transactionDraft, amount: value || undefined } as TransactionDraft);
+                  }
+                }}
+                placeholder="Nhập số tiền"
+              />
             )}
           </div>
 
@@ -401,14 +387,7 @@ export const ConfirmDraftDialog = ({
               {/* Category */}
               <div className="draft-field">
                 <Label>Danh mục {needConfirmFields.includes('categoryId') && <span className="required">*</span>}</Label>
-                {transactionDraft.categoryId && transactionDraft.categoryName ? (
-                  <div className="draft-value">
-                    {transactionDraft.categoryName}
-                    {autoFilledFields.find(f => f.field === 'categoryId') && (
-                      <Badge variant="secondary" className="auto-filled-badge">Tự động</Badge>
-                    )}
-                  </div>
-                ) : (
+                <div className="draft-select-wrapper">
                   <Select
                     value={transactionDraft.categoryId || ''}
                     onValueChange={(value) => {
@@ -435,7 +414,10 @@ export const ConfirmDraftDialog = ({
                         ))}
                     </SelectContent>
                   </Select>
-                )}
+                  {autoFilledFields.find(f => f.field === 'categoryId') && (
+                    <Badge variant="secondary" className="auto-filled-badge">Tự động</Badge>
+                  )}
+                </div>
               </div>
 
               {/* Account */}
@@ -544,12 +526,11 @@ export const ConfirmDraftDialog = ({
                     )}
                   </div>
                 ) : (
-                  <Input
-                    type="number"
-                    value={receivableDraft.amount || ''}
-                    onChange={(e) => {
+                  <AmountInput
+                    value={receivableDraft.amount || 0}
+                    onChange={(value) => {
                       if (isReceivable && receivableDraft) {
-                        setDraft({ ...receivableDraft, amount: parseFloat(e.target.value) || 0 } as ReceivableDraft);
+                        setDraft({ ...receivableDraft, amount: value || 0 } as ReceivableDraft);
                       }
                     }}
                     placeholder="Nhập số tiền"
@@ -621,12 +602,11 @@ export const ConfirmDraftDialog = ({
                     )}
                   </div>
                 ) : (
-                  <Input
-                    type="number"
-                    value={liabilityDraft.amount || ''}
-                    onChange={(e) => {
+                  <AmountInput
+                    value={liabilityDraft.amount || 0}
+                    onChange={(value) => {
                       if (isLiability && liabilityDraft) {
-                        setDraft({ ...liabilityDraft, amount: parseFloat(e.target.value) || 0 } as LiabilityDraft);
+                        setDraft({ ...liabilityDraft, amount: value || 0 } as LiabilityDraft);
                       }
                     }}
                     placeholder="Nhập số tiền"
@@ -713,12 +693,11 @@ export const ConfirmDraftDialog = ({
                     )}
                   </div>
                 ) : (
-                  <Input
-                    type="number"
-                    value={settlementDraft.amount || ''}
-                    onChange={(e) => {
+                  <AmountInput
+                    value={settlementDraft.amount || 0}
+                    onChange={(value) => {
                       if (isSettlement && settlementDraft) {
-                        setDraft({ ...settlementDraft, amount: parseFloat(e.target.value) || 0 } as SettlementDraft);
+                        setDraft({ ...settlementDraft, amount: value || 0 } as SettlementDraft);
                       }
                     }}
                     placeholder="Nhập số tiền"
@@ -836,17 +815,13 @@ export const ConfirmDraftDialog = ({
 
               <div className="draft-field">
                 <Label>Số dư thực tế sau điều chỉnh <span className="required">*</span></Label>
-                <Input
-                  ref={firstInputRef}
-                  type="number"
-                  min={0}
+                <AmountInput
                   value={
                     typeof balanceAdjustmentDraft.targetBalance === 'number'
                       ? balanceAdjustmentDraft.targetBalance
-                      : ''
+                      : 0
                   }
-                  onChange={(e) => {
-                    const value = e.target.value ? parseFloat(e.target.value) : 0;
+                  onChange={(value) => {
                     if (isBalanceAdjustment && balanceAdjustmentDraft) {
                       setDraft({
                         ...balanceAdjustmentDraft,
@@ -855,6 +830,7 @@ export const ConfirmDraftDialog = ({
                     }
                   }}
                   placeholder="Nhập số dư thực tế"
+                  min={0}
                 />
               </div>
 
@@ -961,6 +937,22 @@ const DraftContent = styled.div`
         color: #059669;
         border-radius: 4px;
         font-weight: 500;
+      }
+    }
+
+    .draft-select-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .auto-filled-badge {
+        font-size: 12px;
+        padding: 2px 8px;
+        background: #ecfdf5;
+        color: #059669;
+        border-radius: 4px;
+        font-weight: 500;
+        white-space: nowrap;
       }
     }
 

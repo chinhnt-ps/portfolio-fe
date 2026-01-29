@@ -65,7 +65,7 @@ export const AccountCard = ({ account, onClick, onEdit, onDelete, onAdjustBalanc
         </>
       ) : (
         <div className="account-balance">
-          {formatCurrency(account.currentBalance ?? account.openingBalance ?? 0, account.currency)}
+          {formatCurrency(account.currentBalance ?? 0, account.currency)}
         </div>
       )}
       

@@ -102,8 +102,7 @@ const WalletAppHeaderWrapper = styled.header`
     justify-content: space-between;
     height: 72px;
     padding: 0 ${({ theme }) => theme.spacing[4]};
-    max-width: 1600px;
-    margin: 0 auto;
+    width: 100%;
     gap: ${({ theme }) => theme.spacing[4]};
 
     @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
